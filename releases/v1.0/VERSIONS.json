@@ -1,0 +1,14 @@
+{
+  "omarchy": "4.0.6-1",
+  "linux-omarchy": "7.2.8-9",
+  "hyprland": "0.56.2-4",
+  "systemd": "262.1-1",
+  "limine": "12.9.4-1",
+  "plymouth": "26.134.222-3",
+  "mkinitcpio": "42.2-1",
+  "sddm": "0.21.0-7",
+  "quickshell": "0.3.2.r7.g2b4501a-1",
+  "qt6-base": "6.12.0-3",
+  "qt6-declarative": "6.12.0-2",
+  "cryptsetup": "2.8.8-1"
+}

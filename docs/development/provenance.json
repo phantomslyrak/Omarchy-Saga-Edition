@@ -1,0 +1,583 @@
+[
+  {
+    "path": "components/sagalock/lock-designs/SagaLock.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/SagaLock.qml",
+    "source_sha256": "3bae8e9c9ae9b7949ea1c219c3ad3d0355b6f155855553b24f4982fc96c5d8db",
+    "sha256": "3bae8e9c9ae9b7949ea1c219c3ad3d0355b6f155855553b24f4982fc96c5d8db",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga/KazanWeather.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga/KazanWeather.qml",
+    "source_sha256": "e4e690548f1f20a8ead2c8c5188153966567e7f5913295e77eab6745d715cb27",
+    "sha256": "e4e690548f1f20a8ead2c8c5188153966567e7f5913295e77eab6745d715cb27",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga/OutlineIcon.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga/OutlineIcon.qml",
+    "source_sha256": "d771c84576c7bc015e15d6074a2558e8c736e2c5411b62758aa78fce3f77c5ab",
+    "sha256": "d771c84576c7bc015e15d6074a2558e8c736e2c5411b62758aa78fce3f77c5ab",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga/Telemetry.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga/Telemetry.qml",
+    "source_sha256": "6bf5a51ec5f2a8b275f576fee61b3b5c6153ce70611639f25a2112f71287bbaf",
+    "sha256": "6bf5a51ec5f2a8b275f576fee61b3b5c6153ce70611639f25a2112f71287bbaf",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga/TelemetryModel.js",
+    "source": "$HOME/.config/omarchy/lock-designs/saga/TelemetryModel.js",
+    "source_sha256": "4b26dffff9d3a1598ff960d95d0b115d6c1a4258a1573baa13fd675a9ba99e48",
+    "sha256": "4b26dffff9d3a1598ff960d95d0b115d6c1a4258a1573baa13fd675a9ba99e48",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga/weather_kazan.py",
+    "source": "$HOME/.config/omarchy/lock-designs/saga/weather_kazan.py",
+    "source_sha256": "800718a7f9f53ca67fbe13de089e0260a8714827db366b34f958556534307ba7",
+    "sha256": "800718a7f9f53ca67fbe13de089e0260a8714827db366b34f958556534307ba7",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga-weather/WeatherPanel.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga-weather/WeatherPanel.qml",
+    "source_sha256": "e00854e9813267707efe22e832adcacad00b3e8cf9001eb43701513d8fe13217",
+    "sha256": "e00854e9813267707efe22e832adcacad00b3e8cf9001eb43701513d8fe13217",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga-runes-v1/NorthernFrame.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga-runes-v1/NorthernFrame.qml",
+    "source_sha256": "c129903421bc5741f4e2ae7719a5e1a61a49a64cf960e924158571631c265906",
+    "sha256": "c129903421bc5741f4e2ae7719a5e1a61a49a64cf960e924158571631c265906",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga-runes-v1/RuneMask.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga-runes-v1/RuneMask.qml",
+    "source_sha256": "57c4b140924046d7ac74db84b5af53e5c0f00babd98d245e5e5bfef438d70b68",
+    "sha256": "57c4b140924046d7ac74db84b5af53e5c0f00babd98d245e5e5bfef438d70b68",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/lock-designs/saga-media-v1/MediaPanel.qml",
+    "source": "$HOME/.config/omarchy/lock-designs/saga-media-v1/MediaPanel.qml",
+    "source_sha256": "6b919b2710f3e8af1d1a1f492d4bbc864636948f105cbb46fac7890ac3e77e35",
+    "sha256": "6b919b2710f3e8af1d1a1f492d4bbc864636948f105cbb46fac7890ac3e77e35",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/saga-sddm/NorthernFrame.qml",
+    "source": "/usr/share/sddm/themes/saga-sddm/NorthernFrame.qml",
+    "source_sha256": "c129903421bc5741f4e2ae7719a5e1a61a49a64cf960e924158571631c265906",
+    "sha256": "c129903421bc5741f4e2ae7719a5e1a61a49a64cf960e924158571631c265906",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/saga-sddm/metadata.desktop",
+    "source": "/usr/share/sddm/themes/saga-sddm/metadata.desktop",
+    "source_sha256": "fab58270cb99cf4efeb444607a2fe2aeb6b0428ab13ab62705fdfe0ecd34b4ac",
+    "sha256": "fab58270cb99cf4efeb444607a2fe2aeb6b0428ab13ab62705fdfe0ecd34b4ac",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/saga-sddm/theme.conf",
+    "source": "/usr/share/sddm/themes/saga-sddm/theme.conf",
+    "source_sha256": "34994eddf5da2e681aa57e2c5767c2b25631b93556f1fb3b635096be6fb7d2e1",
+    "sha256": "34994eddf5da2e681aa57e2c5767c2b25631b93556f1fb3b635096be6fb7d2e1",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/saga-sddm/RuneMask.qml",
+    "source": "/usr/share/sddm/themes/saga-sddm/RuneMask.qml",
+    "source_sha256": "00640ba842afb5ebfb94a0d5c40258c2b1496a7f5ef8c1030c4f3a95421a9421",
+    "sha256": "00640ba842afb5ebfb94a0d5c40258c2b1496a7f5ef8c1030c4f3a95421a9421",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/saga-sddm/Main.qml",
+    "source": "/usr/share/sddm/themes/saga-sddm/Main.qml",
+    "source_sha256": "3a1da88f85388ecab9499e8dd5b36a648926f532b0c95cd88c0a925452020064",
+    "sha256": "3a1da88f85388ecab9499e8dd5b36a648926f532b0c95cd88c0a925452020064",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/install.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/install.sh",
+    "source_sha256": "838c49c3e026448ad86895e800bc6022239ea1ea3064903faeb4092c595a005a",
+    "sha256": "838c49c3e026448ad86895e800bc6022239ea1ea3064903faeb4092c595a005a",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rollback.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rollback.sh",
+    "source_sha256": "f649baa81cb06cd239250e85c6f7845841122007918c77001a29ecde9a2f0340",
+    "sha256": "f649baa81cb06cd239250e85c6f7845841122007918c77001a29ecde9a2f0340",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/preview.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/preview.sh",
+    "source_sha256": "b7e4490c6adbbff6a83ea184845a9d70ab6ff6a063c8aefc1b3cd7630538eaa3",
+    "sha256": "b7e4490c6adbbff6a83ea184845a9d70ab6ff6a063c8aefc1b3cd7630538eaa3",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/tools/install-system.py.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/tools/install-system.py",
+    "source_sha256": "9509e2391ed84a3229020e08d0fa855117acd6843307c5c1a7e4451a084b9629",
+    "sha256": "9d43bbfd269a57bc28b45e010824e8eddc8cc402080a8cfdca9ed75901b1337a",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/sagasddm/tools/saga-session-launcher.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/tools/saga-session-launcher",
+    "source_sha256": "7ed44fbdf3aff33874a456e694103b5182b6af3fac57fd3d1fb31492e9fdeeb4",
+    "sha256": "10410896ec6648187cdfe87c0999cdef37cf9eb8bde968c9c29c06e6317fcdd7",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute; private username → @SAGA_USER@"
+  },
+  {
+    "path": "components/sagasddm/tools/greeter-capture.cpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/tools/greeter-capture.cpp",
+    "source_sha256": "4f4969fe2d38dbfce18a87e88f177fa32b52cd5f4521cebdf6d6a2a3699fd124",
+    "sha256": "4f4969fe2d38dbfce18a87e88f177fa32b52cd5f4521cebdf6d6a2a3699fd124",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rune-password-v1/update.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rune-password-v1/update.py",
+    "source_sha256": "ce07b78e17b42793d7864db88fd1988588f5386d5922b8d2bdc5616d3c2765ee",
+    "sha256": "ce07b78e17b42793d7864db88fd1988588f5386d5922b8d2bdc5616d3c2765ee",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rune-password-v1/apply.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rune-password-v1/apply.sh",
+    "source_sha256": "e64db2522458af05597df6a2f40b2377fc6f313f161677fb6a771e8220d5d5f4",
+    "sha256": "e64db2522458af05597df6a2f40b2377fc6f313f161677fb6a771e8220d5d5f4",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rune-password-v1/rollback.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rune-password-v1/rollback.sh",
+    "source_sha256": "6a0931bb40a9da1798654b3f2abad7649c3ab97cb412041b2cbbaa2ec5a0452b",
+    "sha256": "6a0931bb40a9da1798654b3f2abad7649c3ab97cb412041b2cbbaa2ec5a0452b",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rune-password-v1/rune-capture.cpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rune-password-v1/rune-capture.cpp",
+    "source_sha256": "b203f3e7941bc9a12158cd176819d2e918ff3239bef6aba165eccee4e703e757",
+    "sha256": "b203f3e7941bc9a12158cd176819d2e918ff3239bef6aba165eccee4e703e757",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rune-password-v1/Main.qml.diff",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rune-password-v1/Main.qml.diff",
+    "source_sha256": "3856de2e31296d34d89077a8990d6fa2b5be0d6de3cd7397834534a26c604149",
+    "sha256": "3856de2e31296d34d89077a8990d6fa2b5be0d6de3cd7397834534a26c604149",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagasddm/rune-password-v1/RuneMask-vs-SagaLock.diff",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/saga-sddm-v1/rune-password-v1/RuneMask-vs-SagaLock.diff",
+    "source_sha256": "3813e15c57e4a6dc767ee5591d66b6c247a55d6460cdb4a66fce482a82e60ccc",
+    "sha256": "3813e15c57e4a6dc767ee5591d66b6c247a55d6460cdb4a66fce482a82e60ccc",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/source/BootArt.qml.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/source/BootArt.qml",
+    "source_sha256": "7053503acee6a273bd48e26db928f59fb14d056424d7c07f55f8e7b0d925ca31",
+    "sha256": "962378f4ddd51af965b7454caccb3a8435105499d5ce56e98b0953e4d771e4ae",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/sagaboot/source/Preview.qml.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/source/Preview.qml",
+    "source_sha256": "7e5376485cf0eb397a37603173754ab65db18e05373af24323cdb10ef0c9521c",
+    "sha256": "83ba772a211b0b7b7cc843f4dfdbb0f1143a5a4c9bfe01154427746287ece49e",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/sagaboot/source/generated-upstream.script",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/source/generated-upstream.script",
+    "source_sha256": "eb45e954ea192b8e98f515bc2e8f0581d7b381af520bb9561070a7f836268302",
+    "sha256": "eb45e954ea192b8e98f515bc2e8f0581d7b381af520bb9561070a7f836268302",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/source/sagaboot-v1.conf.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/source/sagaboot-v1.conf",
+    "source_sha256": "9c6cea5a47b7e6a23d7ec1e593ada3b441d7dbae6eb4cc15d323f3c33f988d40",
+    "sha256": "3bd0a7939247870f2bab37737be829931f993011fc435a89678e4c8b7037897d",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/sagaboot/theme/design",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/theme/design",
+    "source_sha256": "195b79e49aaeb89d453b1043ea21e01b041e075ad1c2d9092d1b8149c99d5e66",
+    "sha256": "195b79e49aaeb89d453b1043ea21e01b041e075ad1c2d9092d1b8149c99d5e66",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/theme/omarchy-boot.plymouth",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/theme/omarchy-boot.plymouth",
+    "source_sha256": "f07994b3200d6d37e5b37835dd724edf5060420d64bdbcab609029fc72a2bea8",
+    "sha256": "f07994b3200d6d37e5b37835dd724edf5060420d64bdbcab609029fc72a2bea8",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/theme/omarchy-boot.script",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/theme/omarchy-boot.script",
+    "source_sha256": "62b96fe60d9398cdbfee96458578cd0bc589b58d23ccf8614177647a4d52d0f0",
+    "sha256": "62b96fe60d9398cdbfee96458578cd0bc589b58d23ccf8614177647a4d52d0f0",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/tools/finish-theme.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/tools/finish-theme.py",
+    "source_sha256": "1883732979b77ca8066c1c722ed5a8d314c967c6d7f0ff30771c904b364fbf79",
+    "sha256": "1883732979b77ca8066c1c722ed5a8d314c967c6d7f0ff30771c904b364fbf79",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/tools/stage-only.sh.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/tools/stage-only.sh",
+    "source_sha256": "ec566ca7484e86bdb0830e576787ebabd66ca503677c6cb7ea7055a0897984ad",
+    "sha256": "ded5f429fda97aa3a3dc42eddbab01a028880c2339f0d374af3b1fe29dd1022a",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/sagaboot/tests/native_test.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/tests/native_test.py",
+    "source_sha256": "41ab4a77613f2befc5a1a09d4b6c90efc30509b22a3dfdfb9ed8941529a9ad03",
+    "sha256": "41ab4a77613f2befc5a1a09d4b6c90efc30509b22a3dfdfb9ed8941529a9ad03",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/patch/install/plymouth-fallback",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/patch/install/plymouth-fallback",
+    "source_sha256": "f79d99dc07d12a18090695a8d3b030183f34e93148d9d419e5ba9b0766cacf88",
+    "sha256": "f79d99dc07d12a18090695a8d3b030183f34e93148d9d419e5ba9b0766cacf88",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/patch/mkinitcpio.conf.d/zz-plymouth-fallback.conf",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/patch/mkinitcpio.conf.d/zz-plymouth-fallback.conf",
+    "source_sha256": "2a791e6ede6cdff3bc1a5adc7a99ef3038cc8eed116646fe4a657f0fbde176b3",
+    "sha256": "2a791e6ede6cdff3bc1a5adc7a99ef3038cc8eed116646fe4a657f0fbde176b3",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/patch/plymouth-fallback-fonts.conf",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/patch/plymouth-fallback-fonts.conf",
+    "source_sha256": "2b5abe1986e3676697abad5c396c1e603a5e4318bf7641290963459a58c11b67",
+    "sha256": "2b5abe1986e3676697abad5c396c1e603a5e4318bf7641290963459a58c11b67",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/assemble-candidates.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/assemble-candidates.py",
+    "source_sha256": "51095c683e57f7d9e07e15343ee616c64ff2056917f05f01721093e1a726ddab",
+    "sha256": "51095c683e57f7d9e07e15343ee616c64ff2056917f05f01721093e1a726ddab",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/check-candidates.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/check-candidates.py",
+    "source_sha256": "ac320940a75d4587751b0cd1375ed0f48f08227c4bf18af4b5ec6721162d8d1a",
+    "sha256": "ac320940a75d4587751b0cd1375ed0f48f08227c4bf18af4b5ec6721162d8d1a",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/build-install-kit.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/build-install-kit.py",
+    "source_sha256": "282b2f5a8c178992db2fd418334534e26544bda489e5c76a3461701ef333db93",
+    "sha256": "282b2f5a8c178992db2fd418334534e26544bda489e5c76a3461701ef333db93",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/seal-install-kit.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/seal-install-kit.py",
+    "source_sha256": "0ff425ce387461f599ebc37fa340931538ddd94be25b8cfe0e7c2d99cdd38546",
+    "sha256": "0ff425ce387461f599ebc37fa340931538ddd94be25b8cfe0e7c2d99cdd38546",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/test-install-kit.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/test-install-kit.py",
+    "source_sha256": "f3b0c8ad76ee1a8ddb53e64c4d87ed914f103ce3a76c4c1e007f7a15a0ef9812",
+    "sha256": "f3b0c8ad76ee1a8ddb53e64c4d87ed914f103ce3a76c4c1e007f7a15a0ef9812",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/rollback-template.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/rollback-template.sh",
+    "source_sha256": "dea47781a576afbac72ac517132f8c09f3cee9bf219ef6d6643566467d00283d",
+    "sha256": "dea47781a576afbac72ac517132f8c09f3cee9bf219ef6d6643566467d00283d",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/install-kit/install.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/install-kit/install.py",
+    "source_sha256": "c4817c1aceeddcd356085073d7741a4b17c6835d58c3c62ffbcb030e1697391c",
+    "sha256": "c4817c1aceeddcd356085073d7741a4b17c6835d58c3c62ffbcb030e1697391c",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/install-kit/rollback.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/install-kit/rollback.py",
+    "source_sha256": "2ef0afbf1cda40fa1c0d8cad2caf0feab154867dce9e80cd052d6055a004820a",
+    "sha256": "2ef0afbf1cda40fa1c0d8cad2caf0feab154867dce9e80cd052d6055a004820a",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagaboot/deployment/install-kit/rollback.sh",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/sagaboot-final-deployment-20261027/install-kit/rollback.sh",
+    "source_sha256": "348300ffeda9becf35643bf48e372ad0083525b0dc693d33ec80a40a4a911e44",
+    "sha256": "348300ffeda9becf35643bf48e372ad0083525b0dc693d33ec80a40a4a911e44",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/saga-desktop-reveal.patch",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/saga-desktop-reveal.patch",
+    "source_sha256": "6c55cef9d00d548462325ae8ce8b1d334821a50b7dd353131f78a66adad58f09",
+    "sha256": "6c55cef9d00d548462325ae8ce8b1d334821a50b7dd353131f78a66adad58f09",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/manifest.json.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/manifest.json",
+    "source_sha256": "e9221f49661c4e0094366a6fd70e3d677b13a547d5f6d5d8171558a37361e532",
+    "sha256": "1079672630587bee30fc3955185223db564113d332aae0f0483dee5928200843",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/desktop-reveal/source-verification.json",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/source-verification.json",
+    "source_sha256": "c0b012abca1786425a2d74e553efe247bc5d9c23f7921a8c17ac523546152296",
+    "sha256": "c0b012abca1786425a2d74e553efe247bc5d9c23f7921a8c17ac523546152296",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/compatibility/hyprland-input-capture-v1.xml",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/compatibility/hyprland-input-capture-v1.xml",
+    "source_sha256": "fff89f6f9de622fefa1a62a6e6970f76683b6328454565583046abebcfe2c360",
+    "sha256": "fff89f6f9de622fefa1a62a6e6970f76683b6328454565583046abebcfe2c360",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/compatibility/hyprland-protocols.patch",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/compatibility/hyprland-protocols.patch",
+    "source_sha256": "4e164200d11ff983b1816e0cce990f1fe42de6f04fdd684d098a845de30be325",
+    "sha256": "4e164200d11ff983b1816e0cce990f1fe42de6f04fdd684d098a845de30be325",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/compatibility/provenance.json",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/compatibility/provenance.json",
+    "source_sha256": "12940a7d467ac5d5a9e521652abf05bee806002e220d9e7e51519982fc35ff86",
+    "sha256": "12940a7d467ac5d5a9e521652abf05bee806002e220d9e7e51519982fc35ff86",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/tools/control",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tools/control",
+    "source_sha256": "b741ced5d6b526916f4628518966a960d259ca4888aa4e558b8a41cf7f31b1eb",
+    "sha256": "b741ced5d6b526916f4628518966a960d259ca4888aa4e558b8a41cf7f31b1eb",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/tools/check",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tools/check",
+    "source_sha256": "8dab2dd34de6b0d19a532488201c9485b0b380f26c232555b487341036b94600",
+    "sha256": "8dab2dd34de6b0d19a532488201c9485b0b380f26c232555b487341036b94600",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/tools/build",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tools/build",
+    "source_sha256": "3ec9abe14f605712b3aec57e0ee7cedc7fc5fa6a215ac858253e0e812384ab9c",
+    "sha256": "3ec9abe14f605712b3aec57e0ee7cedc7fc5fa6a215ac858253e0e812384ab9c",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/tools/test-session",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tools/test-session",
+    "source_sha256": "400dc40df26e84c400b2fa2a2069f1744d55a6436ff4ace1e661a1e4e35ea5a9",
+    "sha256": "400dc40df26e84c400b2fa2a2069f1744d55a6436ff4ace1e661a1e4e35ea5a9",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/tools/upstream-unit-tests",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tools/upstream-unit-tests",
+    "source_sha256": "6be579ffe7bf6312eabc475ce6a5df408bc65923505ee298a4cae1ed2fdd4e8a",
+    "sha256": "6be579ffe7bf6312eabc475ce6a5df408bc65923505ee298a4cae1ed2fdd4e8a",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/source/src/managers/SessionLockManager.cpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/source/src/managers/SessionLockManager.cpp",
+    "source_sha256": "8553dacf08ff4b0332cb551578ff675129a93366d75cae1e8fb6b04a55317c06",
+    "sha256": "8553dacf08ff4b0332cb551578ff675129a93366d75cae1e8fb6b04a55317c06",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/source/src/render/Renderer.cpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/source/src/render/Renderer.cpp",
+    "source_sha256": "c1b49a2dc4634060534e4993e416408ac60457d75c3808de936f568a2590a091",
+    "sha256": "c1b49a2dc4634060534e4993e416408ac60457d75c3808de936f568a2590a091",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/source/src/render/Renderer.hpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/source/src/render/Renderer.hpp",
+    "source_sha256": "1ab4a86e05c7e97450e48fac49b15b439027dce07b188c391e9e97587818bde6",
+    "sha256": "1ab4a86e05c7e97450e48fac49b15b439027dce07b188c391e9e97587818bde6",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/source/src/render/SagaRevealPolicy.hpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/source/src/render/SagaRevealPolicy.hpp",
+    "source_sha256": "85b80c1f8a31c697a6479974a93ae88dbc8cc867b0c757e0aa8d1624a1153c8c",
+    "sha256": "85b80c1f8a31c697a6479974a93ae88dbc8cc867b0c757e0aa8d1624a1153c8c",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/tests/policy.cpp",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tests/policy.cpp",
+    "source_sha256": "6f2c2fa70e2dd89b06f7c01c45370d1ac264ff35a6c6ab7b67298bb874d9f1a1",
+    "sha256": "54f88f0e0dc19f290f37723d52b9cdcf15f3f4619c0406a507b93a27fd83706a",
+    "transformation": "temporary test path relocated into repository"
+  },
+  {
+    "path": "components/desktop-reveal/tests/test_session.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/tests/test_session.py",
+    "source_sha256": "b04be28c246e8e761d54492266d0eafac4cbc968b55c41b10c9e7545cfbeda25",
+    "sha256": "b04be28c246e8e761d54492266d0eafac4cbc968b55c41b10c9e7545cfbeda25",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/session/saga-session-launcher.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent-session-staging/saga-session-launcher",
+    "source_sha256": "58637594a3499e6b45b0cbf978d18055183bc85c893e615d7fb3cb39089ebc73",
+    "sha256": "7af650aab672c02be1cf0d87c64b4b051a380d4fbbff25a7dbd29154e91eabae",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/desktop-reveal/session/saga-reveal-toggle.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent-session-staging/saga-reveal-toggle",
+    "source_sha256": "bc86f916267dd513a05710a73576889a1df844ee611fa49f5f92e3438b021307",
+    "sha256": "e597ef80c7f7c01987c23fc5e8e761be45921b90a5c8598f10cad062babafce6",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/desktop-reveal/session/alternative/saga-session.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent/saga-session.py",
+    "source_sha256": "f40c643e4f6a0051c7962ac6c6ddf28fe554c0700677bf65e30524d3bdb7c1bf",
+    "sha256": "f40c643e4f6a0051c7962ac6c6ddf28fe554c0700677bf65e30524d3bdb7c1bf",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/desktop-reveal/session/alternative/install-system.sh.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent/install-system.sh",
+    "source_sha256": "838936cf1a5dcafb7d0b1b774ede44f19be99201ac0b9e57aa243c84cfe3b8aa",
+    "sha256": "428f9321ea08dc1d8f5f61121cd0cec62a98306f9fc8e9b5b6cec7076409f818",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "components/desktop-reveal/session/alternative/uninstall-system.sh.in",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent/uninstall-system.sh",
+    "source_sha256": "d21b0da6815b25f36bb4e77a3d267665968c445154c979fda4a422941d1f6dca",
+    "sha256": "4c43f1d7961279d85ac5773b352f92b10d89b19443dd7ce3db35e630ea472611",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute"
+  },
+  {
+    "path": "configs/sessions/saga-session-launcher.in",
+    "source": "/usr/local/libexec/saga-session-launcher",
+    "source_sha256": "7ed44fbdf3aff33874a456e694103b5182b6af3fac57fd3d1fb31492e9fdeeb4",
+    "sha256": "10410896ec6648187cdfe87c0999cdef37cf9eb8bde968c9c29c06e6317fcdd7",
+    "transformation": "absolute private home path → @SAGA_HOME@; template, do not execute; private username → @SAGA_USER@"
+  },
+  {
+    "path": "configs/sessions/omarchy-saga.desktop",
+    "source": "/usr/share/wayland-sessions/omarchy-saga.desktop",
+    "source_sha256": "8daef53e57776b40e31abf68d9c0245233b989c200438570e314a16b7988088c",
+    "sha256": "8daef53e57776b40e31abf68d9c0245233b989c200438570e314a16b7988088c",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "scripts/rollback/saga-sddm-rollback",
+    "source": "/usr/local/sbin/saga-sddm-rollback",
+    "source_sha256": "f649baa81cb06cd239250e85c6f7845841122007918c77001a29ecde9a2f0340",
+    "sha256": "f649baa81cb06cd239250e85c6f7845841122007918c77001a29ecde9a2f0340",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "configs/sddm/saga-theme.conf",
+    "source": "/etc/sddm.conf.d/zzzzz-saga-sddm-theme.conf",
+    "source_sha256": "d35cac496db60c6429364df7d94575fad378ed12f82480e81693ca336a8425bf",
+    "sha256": "d35cac496db60c6429364df7d94575fad378ed12f82480e81693ca336a8425bf",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "third_party/licenses/lock-explorer-MIT.txt",
+    "source": "$HOME/.config/omarchy/plugins/io.github.sirjul1337.lock-explorer/LICENSE",
+    "source_sha256": "7543cd0e0dbf105f12df958d4fcaee86857be6c62fe1662c8a1c3b5e61ab1c09",
+    "sha256": "7543cd0e0dbf105f12df958d4fcaee86857be6c62fe1662c8a1c3b5e61ab1c09",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "third_party/licenses/Hyprland-BSD.txt",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/full-source/LICENSE",
+    "source_sha256": "e01df754903af0ab26babb317b5f5a62dd95f770b733c5275414dd3245d00ae7",
+    "sha256": "e01df754903af0ab26babb317b5f5a62dd95f770b733c5275414dd3245d00ae7",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "releases/v1.0/VERSIONS.json",
+    "source": "$HOME/.local/share/omarchy-saga-edition/releases/Omarchy-Saga-Edition-v1.0/VERSIONS.json",
+    "source_sha256": "2052c5ddf793b377b6cc3161275d83ee63e2110de9f9482c2324084f0020e912",
+    "sha256": "2052c5ddf793b377b6cc3161275d83ee63e2110de9f9482c2324084f0020e912",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "third_party/licenses/Omacale-GPL-3.0.txt",
+    "source": "$HOME/.config/omarchy/plugins/omacale.bar/LICENSE",
+    "source_sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/integration/lock-screen.py",
+    "source": "$HOME/.config/omarchy/plugins/omacale.bar/scripts/lock-screen",
+    "source_sha256": "98d0968054709bed1096b858a99d96eb5df75c4a079618ff65f7b98ef7f6ef06",
+    "sha256": "98d0968054709bed1096b858a99d96eb5df75c4a079618ff65f7b98ef7f6ef06",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/integration/handover.py",
+    "source": "$HOME/.config/omarchy/plugins/omacale.bar/scripts/handover.py",
+    "source_sha256": "6c0b19c19aae507528a6bf882fe98dda6e3b5892fc557b6ceda7e32dcc4e8581",
+    "sha256": "6c0b19c19aae507528a6bf882fe98dda6e3b5892fc557b6ceda7e32dcc4e8581",
+    "transformation": "byte-identical"
+  },
+  {
+    "path": "components/sagalock/tests/test_weather.py",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/live-widgets-20261026-015006/tests/test_weather.py",
+    "source_sha256": "f4dad6c27044b72ea672e6038ae65ba29c421d7c025adeccbee767f35d106a91",
+    "sha256": "1fdc6e0febb733b1339f34b83756cba28a0cd83e470bf280e807d11f70904a96",
+    "transformation": "test paths relocated into repository"
+  },
+  {
+    "path": "components/sagalock/tests/telemetry.test.cjs",
+    "source": "$HOME/.local/share/omarchy-saga-edition/work/live-widgets-20261026-015006/tests/telemetry.test.cjs",
+    "source_sha256": "e887868e384e4de3776fac1c8cbfb4ab49f50897b7ddcbaff6ed46171d911658",
+    "sha256": "6ce50a567cc1069892e4fef062f9e7ec2b1812d18a1cf2c6b9a6c69446c7f3a8",
+    "transformation": "test paths relocated into repository"
+  }
+]

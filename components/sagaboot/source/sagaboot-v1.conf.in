@@ -1,0 +1,14 @@
+# Draft only, not registered or applied to Explorer.
+background = @SAGA_HOME@/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/source/prompt.png
+background_plain = @SAGA_HOME@/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/source/plain.png
+logo = none
+title =
+subtitle =
+clock = off
+entry = embedded
+entry_x = 50.3
+entry_y = 80.134
+entry_wp = 18.5
+entry_hp = 3.5
+entry_align = left
+hint =

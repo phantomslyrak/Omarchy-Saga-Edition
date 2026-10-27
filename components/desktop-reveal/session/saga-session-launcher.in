@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# SAGA PERMANENT SESSION: only activated by a separately approved SDDM session entry.
+set -Eeuo pipefail
+P=@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype
+MARKER=@SAGA_HOME@/.config/omarchy-saga-edition
+MANIFEST=@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent-session-staging/runtime-checksums.sha256
+BIN="$P/bin/Hyprland-saga-reveal"
+stock() {
+    "$P/tools/control" disable >/dev/null 2>&1 || true
+    exec /usr/bin/uwsm start -g -1 -e -D Hyprland hyprland.desktop
+}
+if [[ -e "$MARKER/force-stock" || -e "$MARKER/session-failed" ]]; then
+    echo 'Saga launcher: recovery flag present; starting original Hyprland.' >&2
+    stock
+fi
+if [[ ! -x "$BIN" ]] || [[ "$(pacman -Q hyprland 2>/dev/null || true)" != 'hyprland 0.56.2-4' ]] ||    ! sha256sum -c --status "$MANIFEST"; then
+    echo 'Saga launcher: binary/package/dependencies changed; starting original Hyprland.' >&2
+    stock
+fi
+if ldd -r "$BIN" 2>&1 | grep -Eiq 'not found|undefined symbol'; then
+    echo 'Saga launcher: unresolved dependency; starting original Hyprland.' >&2
+    stock
+fi
+if [[ -e "$MARKER/disable-reveal" ]]; then
+    "$P/tools/control" disable >/dev/null 2>&1 || true
+else
+    if ! "$P/tools/control" enable --ms 700; then
+        echo 'Saga launcher: could not enable 700ms opt-in; using original Hyprland.' >&2
+        stock
+    fi
+fi
+# This duplicates the tested start-hyprland --path mechanism under Omarchy/UWSM.
+# Unlike replacing /usr/bin/Hyprland, this preserves the stock session.
+set +e
+/usr/bin/uwsm start -g -1 -e -D Hyprland -- /usr/bin/start-hyprland --path "$BIN"
+result=$?
+set -e
+if (( result != 0 )); then
+    mkdir -p -m 700 -- "$MARKER"
+    : > "$MARKER/session-failed"
+    chmod 600 "$MARKER/session-failed"
+    "$P/tools/control" disable >/dev/null 2>&1 || true
+    echo 'Saga launcher failed: next Saga login falls back to original Hyprland.' >&2
+fi
+exit "$result"

@@ -1,0 +1,25 @@
+const vm=require('node:vm'), fs=require('node:fs'), assert=require('node:assert/strict');
+const m=vm.createContext({});vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../lock-designs/saga/TelemetryModel.js'),'utf8'),m);
+let checks=0;function check(condition){assert.ok(condition);checks++;}
+const a=m.cpuCounters('cpu 10 0 10 70 10 0 0 0 100 100\ncpu0 ignored');check(a.total===100 && a.idle===80);
+check(m.cpuCounters('cpu broken')===null);check(m.cpuCounters('cpu -1 0 0 0 0 0 0 0')===null);
+let sample=m.cpuSample(null,a,1000);check(sample.cpu===-1 && sample.reset);
+sample=m.cpuSample(sample.previous,{total:200,idle:130},3000);check(sample.cpu===.5 && !sample.reset);
+check(m.cpuSample(sample.previous,{total:300,idle:180},20000).reset);
+check(m.cpuSample(sample.previous,{total:100,idle:60},5000).reset);
+check(m.cpuSample(sample.previous,{total:300,idle:100},5000).reset);
+check(m.cpuSample(sample.previous,null,5000).previous===null);
+check(m.cpuSample(sample.previous,{total:300,idle:180},2000).reset);
+check(m.memory('MemTotal: 2097152 kB\nMemAvailable: 1048576 kB').text==='1.0 / 2.0 GiB');
+check(m.memory('MemTotal: 2097152 kB\nMemAvailable: 1048576 kB').ratio===.5);
+check(m.memory('MemTotal: 1 kB\nMemAvailable: 2 kB')===null);
+check(m.memory('MemTotal: 0 kB\nMemAvailable: 0 kB')===null);check(m.memory('oops')===null);
+check(m.disk('size used\n1000 250',0)===.25);check(m.disk('size used\n100 200',0)===-1);
+check(m.disk('size used\n100 20',1)===-1);check(m.disk('',0)===-1);
+for(const value of ['0','70','100'])check(m.battery(value)===Number(value));
+for(const value of ['', '-1','101','NaN','4.5'])check(m.battery(value)===-1);
+for(const value of ['Charging','Discharging','Full','Not charging'])check(m.batteryStatus(value)===value);
+check(m.batteryStatus('Unknown')==='');
+const realCpu=m.cpuCounters(fs.readFileSync('/proc/stat','utf8'));check(realCpu.total>0);
+const realRam=m.memory(fs.readFileSync('/proc/meminfo','utf8'));check(realRam.ratio>=0 && realRam.ratio<=1);
+console.log('TELEMETRY_PARSER_CHECKS_PASS',checks);

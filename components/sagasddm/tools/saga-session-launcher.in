@@ -1,0 +1,7 @@
+#!/bin/sh
+# SDDM checks this public executable; the private launcher is accessed only as @SAGA_USER@.
+if [ "$(/usr/bin/id -un)" != @SAGA_USER@ ]; then
+    echo 'Saga session must be started as @SAGA_USER@.' >&2
+    exit 1
+fi
+exec @SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent-session-staging/saga-session-launcher "$@"

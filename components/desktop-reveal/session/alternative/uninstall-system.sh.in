@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+# Explicit optional system rollback; no current session is stopped.
+set -euo pipefail
+root=@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent
+[[ $EUID == 0 ]] || { echo 'Run using sudo after explicit approval.' >&2; exit 1; }
+# Refuse to delete files that have since been customized.
+cmp -- "$root/staged/zz-saga-session.conf" /etc/sddm.conf.d/zz-saga-session.conf
+cmp -- "$root/staged/omarchy-saga.desktop" /usr/local/share/wayland-sessions/omarchy-saga.desktop
+diff -qr -- "$root/staged/omarchy-saga" /usr/local/share/sddm/themes/omarchy-saga
+rm -- /etc/sddm.conf.d/zz-saga-session.conf /usr/local/share/wayland-sessions/omarchy-saga.desktop
+rm -r -- /usr/local/share/sddm/themes/omarchy-saga
+echo 'Original SDDM configuration restored by removing the local override. No restart performed.'

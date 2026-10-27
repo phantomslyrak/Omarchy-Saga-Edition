@@ -1,0 +1,5 @@
+{
+  "design": "my-sagalock",
+  "unlock": "zoom",
+  "unlockMs": 1200
+}

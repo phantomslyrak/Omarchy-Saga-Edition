@@ -1,0 +1,10 @@
+[SddmGreeterTheme]
+Name=SagaSDDM
+Description=SagaSDDM v1.0 — original SagaLock fjord and Saga Runes
+Author=Saga Edition
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+Theme-Id=saga-sddm
+Theme-API=2.0
+QtVersion=6

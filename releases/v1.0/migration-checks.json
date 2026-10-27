@@ -1,0 +1,14 @@
+{
+  "source_and_installed_files_hashed": 982,
+  "changed_files": 0,
+  "summaway_entries_metadata_checked": 21007,
+  "summaway_metadata_unchanged": true,
+  "boot_limitation": "/boot/limine.conf unreadable; no ESP access or writes attempted",
+  "stable_version_comparisons": {
+    "SagaLock.qml": true,
+    "Main.qml": true,
+    "RuneMask.qml": true
+  },
+  "original_locations_modified_by_agent": false,
+  "full_build_or_runtime_tests": false
+}

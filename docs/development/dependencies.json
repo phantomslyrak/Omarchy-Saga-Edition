@@ -1,0 +1,36 @@
+{
+  "Hyprland": {
+    "commit": "efb50993780079460b0cbed1363e2166a2de1d9f",
+    "url": "https://github.com/hyprwm/Hyprland"
+  },
+  "Lock Explorer": {
+    "commit": "04690c45f14c5680952b7098dcc2bf9ad58a0568",
+    "version": "2.0.9",
+    "url": "https://github.com/SirJul1337/omarchy-lock-explorer"
+  },
+  "Omacale": {
+    "version": "0.55.1",
+    "commit": null,
+    "note": "Installed source has no .git; exact copied integration files have SHA256 provenance."
+  },
+  "glaze": {
+    "version": "7.2.0",
+    "git_tree_sha": "b518eec7a22e56ffa238b072c07f47efa7cea97f",
+    "tree_api_url": "https://api.github.com/repos/stephenberry/glaze/git/trees/b518eec7a22e56ffa238b072c07f47efa7cea97f"
+  },
+  "hyprwayland-scanner": {
+    "version": "0.4.6",
+    "git_tree_sha": "b8632713a6beaf28b56f2a7b0ab2fb7088dbb404",
+    "tree_api_url": "https://api.github.com/repos/hyprwm/hyprwayland-scanner/git/trees/b8632713a6beaf28b56f2a7b0ab2fb7088dbb404"
+  },
+  "udis86": {
+    "version": "5336633af70f3917760a6d441ff02d93477b0c86",
+    "git_tree_sha": "5336633af70f3917760a6d441ff02d93477b0c86",
+    "tree_api_url": "https://api.github.com/repos/canihavesomecoffee/udis86/git/trees/5336633af70f3917760a6d441ff02d93477b0c86"
+  },
+  "hyprland-protocols": {
+    "version": "0.7.0",
+    "git_tree_sha": "bd153e76f751f150a09328dbdeb5e4fab9d23622",
+    "tree_api_url": "https://api.github.com/repos/hyprwm/hyprland-protocols/git/trees/bd153e76f751f150a09328dbdeb5e4fab9d23622"
+  }
+}

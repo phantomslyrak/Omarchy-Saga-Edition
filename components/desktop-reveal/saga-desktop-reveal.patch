@@ -1,0 +1,387 @@
+diff --git a/src/managers/SessionLockManager.cpp b/src/managers/SessionLockManager.cpp
+index bb3e792..8f69fab 100644
+--- a/src/managers/SessionLockManager.cpp
++++ b/src/managers/SessionLockManager.cpp
+@@ -63,6 +63,8 @@ void CSessionLockManager::onNewSessionLock(SP<CSessionLock> pLock) {
+ 
+     LOGM(Log::DEBUG, "Session got locked by {:x}", (uintptr_t)pLock.get());
+ 
++    g_pHyprRenderer->clearSagaReveal(); // A new real lock always wins over decoration.
++
+     m_sessionLock       = makeUnique<SSessionLock>();
+     m_sessionLock->lock = pLock;
+     m_sessionLock->lockTimer.reset();
+@@ -78,6 +80,7 @@ void CSessionLockManager::onNewSessionLock(SP<CSessionLock> pLock) {
+     });
+ 
+     m_sessionLock->listeners.unlock = pLock->m_events.unlockAndDestroy.listen([this] {
++        g_pHyprRenderer->beginSagaReveal(); // Snapshot while the authenticated lock surfaces still exist.
+         m_events.unlock.emit();
+ 
+         m_sessionLock.reset();
+diff --git a/src/render/Renderer.cpp b/src/render/Renderer.cpp
+index 249f084..fbd4cd5 100644
+--- a/src/render/Renderer.cpp
++++ b/src/render/Renderer.cpp
+@@ -1661,6 +1661,207 @@ void IHyprRenderer::ensureLockTexturesRendered(bool load) {
+     }
+ }
+ 
++// A decoration must not turn an optional allocation failure into the fatal
++// assertion used by the compositor's normal work-buffer allocator. This FBO
++// is only the final target of a lock-only offscreen copy; it needs no stencil,
++// mirroring, or CPU readback. The normal renderer/allocator stays unchanged.
++class CSagaFramebuffer final : public IFramebuffer {
++  public:
++    CSagaFramebuffer() : IFramebuffer("Saga authenticated lock snapshot") {
++        ;
++    }
++    ~CSagaFramebuffer() override {
++        release();
++    }
++
++    void bind() override {
++        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
++        Render::GL::g_pHyprOpenGL->setViewport(0, 0, m_size.x, m_size.y);
++    }
++    void release() override {
++        if (g_pCompositor && !g_pCompositor->m_isShuttingDown && Render::GL::g_pHyprOpenGL) {
++            Render::GL::g_pHyprOpenGL->makeEGLCurrent();
++            if (m_fbo)
++                glDeleteFramebuffers(1, &m_fbo);
++        }
++        m_fbo         = 0;
++        m_fbAllocated = false;
++        m_tex.reset();
++    }
++    bool readPixels(CHLBufferReference, uint32_t, uint32_t, uint32_t, uint32_t) override {
++        return false;
++    }
++    void addStencil(SP<ITexture>) override {
++        ;
++    }
++
++  protected:
++    bool internalAlloc(int w, int h, DRMFormat format) override {
++        if (format != DRM_FORMAT_ABGR8888)
++            return false;
++        Render::GL::g_pHyprOpenGL->makeEGLCurrent();
++        GLint oldFramebuffer = 0, oldTexture = 0;
++        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &oldFramebuffer);
++        glGetIntegerv(GL_TEXTURE_BINDING_2D, &oldTexture);
++        const auto restore = CScopeGuard([&] {
++            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldFramebuffer);
++            glBindTexture(GL_TEXTURE_2D, oldTexture);
++        });
++        m_tex              = g_pHyprRenderer->createTexture(true);
++        m_tex->allocate({w, h}, format);
++        glBindTexture(GL_TEXTURE_2D, m_tex->m_texID);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
++        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
++        glGenFramebuffers(1, &m_fbo);
++        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
++        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_tex->m_texID, 0);
++        const auto status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
++        const auto error  = glGetError();
++        if (!m_fbo || !m_tex->m_texID || status != GL_FRAMEBUFFER_COMPLETE || error != GL_NO_ERROR) {
++            release();
++            Log::logger->log(Log::WARN, "Saga reveal skipped: optional framebuffer allocation failed");
++            return false;
++        }
++        return true;
++    }
++
++  private:
++    GLuint m_fbo = 0;
++};
++
++static std::optional<int> sagaRevealDuration() {
++    // No new service/config reload. A private per-user runtime file is the opt-in
++    // and kill switch. Nonblocking + NOFOLLOW prevents a FIFO/symlink blocking render.
++    const auto path = std::format("/run/user/{}/saga-desktop-reveal.enabled", getuid());
++    return SagaReveal::readDuration(path.c_str(), getuid());
++}
++
++void IHyprRenderer::clearSagaReveal() {
++    for (const auto& [id, reveal] : m_sagaReveals) {
++        if (auto monitor = reveal.monitor.lock())
++            damageMonitor(monitor);
++    }
++    m_sagaReveals.clear();
++    if (m_sagaRevealTimer)
++        m_sagaRevealTimer->updateTimeout(std::nullopt);
++}
++
++void IHyprRenderer::beginSagaReveal() {
++    clearSagaReveal();
++    static auto ANIMATIONS = CConfigValue<Config::INTEGER>("animations:enabled");
++    static auto XRAY       = CConfigValue<Config::INTEGER>("misc:session_lock_xray");
++    const auto  ms         = sagaRevealDuration();
++    if (!ms || !*ANIMATIONS || *XRAY || !g_pSessionLockManager->clientLocked() || g_pSessionLockManager->clientDenied())
++        return;
++
++    // Only snapshot the lock surface itself on a black, opaque primer. Never
++    // capture a workspace/framebuffer containing applications, or above-lock layers.
++    std::map<uint64_t, SSagaReveal> pending;
++    double                          remainingPixels = 16 * 1024 * 1024; // At most 64 MiB of optional RGBA8 covers.
++    for (const auto& monitor : State::monitorState()->monitors()) {
++        if (!monitor->m_enabled || !monitor->m_dpmsStatus)
++            continue;
++        const auto surface = g_pSessionLockManager->getSessionLockSurfaceForMonitor(monitor->m_id);
++        const auto tf      = monitor->m_imageDescription->value().transferFunction;
++        if (monitor->isMirror() || monitor->m_renderingActive || !surface || !surface->mapped || !surface->surface || !surface->surface->surface() ||
++            !surface->surface->surface()->m_current.texture || monitor->m_pixelSize.x <= 0 || monitor->m_pixelSize.y <= 0 ||
++            (tf != NColorManagement::CM_TRANSFER_FUNCTION_SRGB && tf != NColorManagement::CM_TRANSFER_FUNCTION_GAMMA22 && tf != NColorManagement::CM_TRANSFER_FUNCTION_BT1886)) {
++            Log::logger->log(Log::WARN, "Saga reveal skipped: unsupported/missing lock output");
++            return; // All eligible outputs or none; no partial multi-monitor claim.
++        }
++        const double pixels = monitor->m_pixelSize.x * monitor->m_pixelSize.y;
++        if (pixels > remainingPixels)
++            return;
++        remainingPixels -= pixels;
++        SP<IFramebuffer> frame = makeShared<CSagaFramebuffer>();
++        if (!frame || !frame->alloc(monitor->m_pixelSize.x, monitor->m_pixelSize.y, DRM_FORMAT_ABGR8888))
++            return;
++        frame->setImageDescription(monitor->workBufferImageDescription());
++        CRegion damage{0, 0, monitor->m_transformedSize.x, monitor->m_transformedSize.y};
++        if (!beginFullFakeRender(monitor, damage, frame))
++            return;
++        const bool wasSnapshot = m_bRenderingSnapshot;
++        m_bRenderingSnapshot   = true;
++        draw(CClearPassElement::SClearData{CHyprColor(0, 0, 0, 1)});
++        startRenderPass();
++        renderSessionLockSurface(surface, monitor, Time::steadyNow());
++        endRender();
++        m_bRenderingSnapshot = wasSnapshot;
++        if (!frame->getTexture())
++            return;
++        pending.emplace(monitor->m_id,
++                        SSagaReveal{monitor, frame, monitor->m_pixelSize, monitor->m_transformedSize, monitor->m_scale, static_cast<int>(monitor->m_transform), *ms, {}});
++    }
++    m_sagaReveals = std::move(pending);
++    if (m_sagaReveals.empty())
++        return;
++    // A missing/blanked output or a stopped rendering loop cannot retain a cover
++    // indefinitely. The watchdog also polls the kill switch without needing input.
++    m_sagaRevealDeadline = Time::steadyNow() + std::chrono::milliseconds(1500);
++    if (!m_sagaRevealTimer) {
++        m_sagaRevealTimer = makeShared<CEventLoopTimer>(std::nullopt, [this](auto, void*) { tickSagaReveal(); }, nullptr);
++        g_pEventLoopManager->addTimer(m_sagaRevealTimer);
++    }
++    m_sagaRevealTimer->updateTimeout(std::chrono::milliseconds(1));
++    Log::logger->log(Log::DEBUG, "Saga reveal armed: {} outputs, {} ms", m_sagaReveals.size(), *ms);
++}
++
++void IHyprRenderer::tickSagaReveal() {
++    static auto ANIMATIONS = CConfigValue<Config::INTEGER>("animations:enabled");
++    if (!sagaRevealDuration() || !*ANIMATIONS || g_pSessionLockManager->isSessionLocked() || Time::steadyNow() >= m_sagaRevealDeadline) {
++        clearSagaReveal();
++        return;
++    }
++    for (const auto& [id, reveal] : m_sagaReveals) {
++        if (auto monitor = reveal.monitor.lock()) {
++            damageMonitor(monitor);
++            monitor->scheduleFrame();
++        }
++    }
++    if (!m_sagaReveals.empty())
++        m_sagaRevealTimer->updateTimeout(std::chrono::milliseconds(8));
++}
++
++bool IHyprRenderer::sagaRevealPending(PHLMONITOR monitor) {
++    if (m_sagaReveals.empty())
++        return false;
++    static auto ANIMATIONS = CConfigValue<Config::INTEGER>("animations:enabled");
++    if (g_pSessionLockManager->isSessionLocked() || !sagaRevealDuration() || !*ANIMATIONS || Time::steadyNow() >= m_sagaRevealDeadline) {
++        clearSagaReveal();
++        return false;
++    }
++    const auto it = m_sagaReveals.find(monitor->m_id);
++    if (it == m_sagaReveals.end())
++        return false;
++    const auto& r = it->second;
++    if (r.monitor.lock() != monitor || r.pixelSize != monitor->m_pixelSize || r.transformedSize != monitor->m_transformedSize || r.scale != monitor->m_scale ||
++        r.transform != static_cast<int>(monitor->m_transform) || monitor->isMirror()) {
++        clearSagaReveal(); // Hotplug/mode/transform changes: prefer an ordinary desktop.
++        return false;
++    }
++    return true;
++}
++
++void IHyprRenderer::renderSagaReveal(PHLMONITOR monitor, const Time::steady_tp& now) {
++    if (!sagaRevealPending(monitor))
++        return;
++    auto&       reveal = m_sagaReveals.at(monitor->m_id);
++    const float alpha  = reveal.timeline.alpha(now, reveal.durationMs);
++    if (alpha <= 0.F) {
++        m_sagaReveals.erase(monitor->m_id);
++        return;
++    }
++    CTexPassElement::SRenderData data;
++    data.tex          = reveal.frame->getTexture();
++    data.box          = {0, 0, monitor->m_transformedSize.x, monitor->m_transformedSize.y};
++    data.a            = alpha;
++    data.flipEndFrame = true; // Match Hyprland's existing framebuffer fadeout path.
++    m_renderPass.add(makeUnique<CTexPassElement>(std::move(data)));
++}
++
+ void IHyprRenderer::renderLockscreen(PHLMONITOR pMonitor, const Time::steady_tp& now, const CBox& geometry) {
+     TRACY_GPU_ZONE("RenderLockscreen");
+ 
+@@ -2075,7 +2276,14 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+ 
+     // tearing and DS first
+     bool       shouldTear              = pMonitor->updateTearing();
+-    const bool canAttemptDirectScanout = pMonitor->canAttemptDirectScanoutFast();
++    const bool sagaReveal              = sagaRevealPending(pMonitor);
++    const bool canAttemptDirectScanout = !sagaReveal && pMonitor->canAttemptDirectScanoutFast();
++    if (sagaReveal) {
++        shouldTear                               = false;
++        pMonitor->m_tearingState.activelyTearing = false;
++        if (!pMonitor->m_lastScanout.expired() || pMonitor->m_directScanoutIsActive)
++            pMonitor->handleDSleave();
++    }
+ 
+     if (canAttemptDirectScanout) {
+         if (pMonitor->attemptDirectScanout()) {
+@@ -2143,7 +2351,7 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+     }
+ 
+     // if we have no tracking or full tracking, invalidate the entire monitor
+-    if (*PDAMAGETRACKINGMODE == DAMAGE_TRACKING_NONE || *PDAMAGETRACKINGMODE == DAMAGE_TRACKING_MONITOR || pMonitor->m_forceFullFrames > 0 || damageBlinkCleanup > 0)
++    if (*PDAMAGETRACKINGMODE == DAMAGE_TRACKING_NONE || *PDAMAGETRACKINGMODE == DAMAGE_TRACKING_MONITOR || pMonitor->m_forceFullFrames > 0 || damageBlinkCleanup > 0 || sagaReveal)
+         damage = {0, 0, sc<int>(pMonitor->m_transformedSize.x) * 10, sc<int>(pMonitor->m_transformedSize.y) * 10};
+ 
+     finalDamage = damage;
+@@ -2161,7 +2369,7 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+ 
+     bool renderCursor = true;
+ 
+-    if (pMonitor->m_solitaryClient && (!finalDamage.empty() || *PSOLDAMAGE))
++    if (!sagaReveal && pMonitor->m_solitaryClient && (!finalDamage.empty() || *PSOLDAMAGE))
+         renderWindow(pMonitor->m_solitaryClient.lock(), pMonitor, NOW, false, RENDER_PASS_MAIN /* solitary = no popups */);
+     else if (!finalDamage.empty()) {
+         if (pMonitor->isMirror()) {
+@@ -2209,6 +2417,10 @@ void IHyprRenderer::renderMonitor(PHLMONITOR pMonitor, bool commit) {
+             sendFrameEventsToWorkspace(pMonitor, pMonitor->m_activeSpecialWorkspace, NOW);
+     }
+ 
++    // Cover the whole composed interface, including Shell, windows and IME.
++    // Pointer stays live; this pass never changes keyboard/pointer focus.
++    renderSagaReveal(pMonitor, NOW);
++
+     renderCursor = renderCursor && shouldRenderCursor();
+ 
+     if (renderCursor) {
+diff --git a/src/render/Renderer.hpp b/src/render/Renderer.hpp
+index b4f5ab8..a7f08f3 100644
+--- a/src/render/Renderer.hpp
++++ b/src/render/Renderer.hpp
+@@ -32,6 +32,8 @@
+ #include "desktop/view/Popup.hpp"
+ #include "Framebuffer.hpp"
+ #include "Texture.hpp"
++#include "SagaRevealPolicy.hpp"
++#include <map>
+ 
+ #include <hyprgraphics/resource/resources/TextResource.hpp>
+ 
+@@ -88,6 +90,11 @@ namespace Render {
+         std::tuple<float, float, float>     getRenderTimes(PHLMONITOR pMonitor); // avg max min
+         void                                ensureLockTexturesRendered(bool load);
+         void                                renderLockscreen(PHLMONITOR pMonitor, const Time::steady_tp& now, const CBox& geometry);
++
++        // Called only by the normal unlock-and-destroy path; never unlocks anything.
++        void                                beginSagaReveal();
++        void                                clearSagaReveal();
++
+         void                                setCursorSurface(SP<Desktop::View::CWLSurface> surf, int hotspotX, int hotspotY, bool force = false);
+         void                                setCursorFromName(const std::string& name, bool force = false);
+         void                                onRenderbufferDestroy(IRenderbuffer* rb);
+@@ -264,6 +271,23 @@ namespace Render {
+         void renderIME(PHLMONITOR pMonitor, const Time::steady_tp& now, const CBox& geometry);
+         void renderWorkspaceWindowsFullscreen(PHLMONITOR, PHLWORKSPACE, const Time::steady_tp&); // renders workspace windows (fullscreen) (tiled, floating, pinned, but no special)
+         void renderWorkspaceWindows(PHLMONITOR, PHLWORKSPACE, const Time::steady_tp&); // renders workspace windows (no fullscreen) (tiled, floating, pinned, but no special)
++        struct SSagaReveal {
++            WP<Monitor::CMonitor> monitor;
++            SP<IFramebuffer>      frame;
++            Vector2D              pixelSize;
++            Vector2D              transformedSize;
++            double                scale      = 1;
++            int                   transform  = 0;
++            int                   durationMs = 550;
++            SagaReveal::Timeline  timeline;
++        };
++        std::map<uint64_t, SSagaReveal> m_sagaReveals;
++        SP<CEventLoopTimer>             m_sagaRevealTimer;
++        Time::steady_tp                 m_sagaRevealDeadline;
++        bool                            sagaRevealPending(PHLMONITOR monitor);
++        void                            renderSagaReveal(PHLMONITOR monitor, const Time::steady_tp& now);
++        void                            tickSagaReveal();
++
+         void renderAllClientsForWorkspace(PHLMONITOR pMonitor, PHLWORKSPACE pWorkspace, const Time::steady_tp& now, const Vector2D& translate = {0, 0}, const float& scale = 1.f);
+         void renderWindow(PHLWINDOW, PHLMONITOR, const Time::steady_tp&, bool, eRenderPassMode, bool ignorePosition = false, bool standalone = false);
+         void renderLayer(PHLLS, PHLMONITOR, const Time::steady_tp&, bool popups = false, bool lockscreen = false);
+diff --git a/src/render/SagaRevealPolicy.hpp b/src/render/SagaRevealPolicy.hpp
+new file mode 100644
+index 0000000..ea755ea
+--- /dev/null
++++ b/src/render/SagaRevealPolicy.hpp
+@@ -0,0 +1,54 @@
++#pragma once
++
++#include <algorithm>
++#include <charconv>
++#include <chrono>
++#include <optional>
++#include <string_view>
++#include <fcntl.h>
++#include <sys/stat.h>
++#include <unistd.h>
++
++// Pure visual policy; it has no authority to authenticate or release a lock.
++namespace SagaReveal {
++    inline std::optional<int> duration(std::string_view text) {
++        if (!text.empty() && text.back() == '\n')
++            text.remove_suffix(1);
++        int ms                  = 0;
++        const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), ms);
++        if (error != std::errc{} || end != text.data() + text.size() || ms < 350 || ms > 700)
++            return std::nullopt;
++        return ms;
++    }
++
++    inline std::optional<int> readDuration(const char* path, uid_t owner) {
++        const int fd = open(path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC);
++        if (fd < 0)
++            return std::nullopt;
++        struct stat st       = {};
++        char        text[32] = {};
++        const bool  valid    = fstat(fd, &st) == 0 && S_ISREG(st.st_mode) && st.st_uid == owner && !(st.st_mode & 0022);
++        const auto  size     = valid ? read(fd, text, sizeof(text)) : -1;
++        close(fd);
++        if (size <= 0 || size >= static_cast<ssize_t>(sizeof(text)))
++            return std::nullopt;
++        return duration(std::string_view(text, size));
++    }
++
++    // OutCubic desktop reveal = 1 - (1-t)^3. The safe cover fades oppositely.
++    inline float coverAlpha(double elapsedMs, int durationMs) {
++        const auto remaining = 1.0 - std::clamp(elapsedMs / durationMs, 0.0, 1.0);
++        return static_cast<float>(remaining * remaining * remaining);
++    }
++
++    struct Timeline {
++        using Clock = std::chrono::steady_clock;
++        std::optional<Clock::time_point> firstFrame;
++
++        float                            alpha(Clock::time_point now, int ms) {
++            if (!firstFrame)
++                firstFrame = now; // Always cover the first desktop frame completely.
++            return coverAlpha(std::chrono::duration<double, std::milli>(now - *firstFrame).count(), ms);
++        }
++    };
++}

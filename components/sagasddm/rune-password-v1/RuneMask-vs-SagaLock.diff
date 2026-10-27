@@ -1,0 +1,54 @@
+--- SagaLock/RuneMask.qml
++++ SagaSDDM/RuneMask.qml
+@@ -5,6 +5,12 @@
+ 
+ Item {
+     id: mask
++    objectName: "sagaRuneMask"
++    // Authentication failure hides and clears the visual layer immediately.
++    property bool resetImmediately: false
++    onResetImmediatelyChanged: if (resetImmediately) {
++        clearTimer.stop(); slots.clear(); previousLength = 0; clearing = false
++    }
+     enabled: false // Entire ornament subtree is transparent to keyboard/pointer input.
+     property int count: 0
+     property int caret: 0
+@@ -23,7 +29,7 @@
+ 
+     function sync() {
+         try {
+-            const total = Math.max(0, count)
++            const total = resetImmediately ? 0 : Math.max(0, count)
+             const start = viewportStart
+             const end = Math.min(total, start + capacity)
+             while (slots.count && slots.get(0).ordinal < start) slots.remove(0)
+@@ -38,6 +44,8 @@
+             if (clearing) clearTimer.restart()
+             else clearTimer.stop()
+             previousLength = total
++            // Apply queued ListModel removals before the next password edit.
++            strip.forceLayout()
+             healthy = true
+         } catch (error) { healthy = false; console.warn("SAGA_RUNES_MASK_FAILED", String(error)) }
+     }
+@@ -77,6 +85,9 @@
+             }
+             Connections {
+                 target: mask
++                function onResetImmediatelyChanged() {
++                    if (mask.resetImmediately) { birth.stop(); mark.opacity = 0 }
++                }
+                 function onReducedMotionChanged() {
+                     if (mask.reducedMotion) { birth.stop(); mark.opacity = 1; mark.scale = 1; mark.morph = 1 }
+                 }
+@@ -120,8 +131,8 @@
+         }
+         remove: Transition {
+             ParallelAnimation {
+-                NumberAnimation { property: "opacity"; to: 0; duration: mask.reducedMotion ? 0 : 150; easing.type: Easing.OutCubic }
+-                NumberAnimation { property: "scale"; to: 0.65; duration: mask.reducedMotion ? 0 : 150; easing.type: Easing.OutCubic }
++                NumberAnimation { property: "opacity"; to: 0; duration: mask.reducedMotion || mask.resetImmediately ? 0 : 150; easing.type: Easing.OutCubic }
++                NumberAnimation { property: "scale"; to: 0.65; duration: mask.reducedMotion || mask.resetImmediately ? 0 : 150; easing.type: Easing.OutCubic }
+             }
+         }
+     }

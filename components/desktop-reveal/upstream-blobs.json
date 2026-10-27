@@ -1,0 +1,5 @@
+{
+  "src/managers/SessionLockManager.cpp": "bb3e792900f4e8c1d9dad43eb8e7f1d1c6b85570",
+  "src/render/Renderer.cpp": "249f08439ef7ab03ae33eefb765fb3ffc895b9cd",
+  "src/render/Renderer.hpp": "b4f5ab8a979cdadb62396189304ea9cf4e2c9bcb"
+}

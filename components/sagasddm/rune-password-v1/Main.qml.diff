@@ -1,0 +1,43 @@
+--- installed/Main.qml
++++ updated/Main.qml
+@@ -191,7 +191,11 @@
+             anchors.leftMargin: 58 * root.u; anchors.rightMargin: 57 * root.u
+             verticalAlignment: TextInput.AlignVCenter
+             font.family: sans.name; font.pixelSize: 19 * root.u
+-            color: root.ivory; selectionColor: "#797465"; selectedTextColor: root.ivory
++            color: "transparent"; selectionColor: "transparent"; selectedTextColor: "transparent"
++            cursorVisible: false
++            cursorDelegate: Item { objectName: "sagaHiddenCursor"; visible: false }
++            // Match hidden native mask advance to the decorative rune cells for pointer editing.
++            font.letterSpacing: 17 * root.u - passwordMetrics.advanceWidth("•")
+             echoMode: TextInput.Password; passwordCharacter: "•"; passwordMaskDelay: 0
+             clip: true; focus: true; enabled: !root.busy
+             inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhHiddenText
+@@ -202,11 +206,26 @@
+             Keys.onEscapePressed: { clear(); root.failed = false; root.message = "" }
+             onTextEdited: { root.failed = false; root.message = "" }
+         }
++        FontMetrics {
++            id: passwordMetrics
++            font.family: sans.name
++            font.pixelSize: 19 * root.u
++        }
++        RuneMask {
++            id: runeMask
++            anchors.fill: password
++            count: password.length
++            caret: password.cursorPosition
++            unit: root.u
++            focused: password.activeFocus && password.enabled
++            resetImmediately: root.failed
++            visible: !root.failed
++        }
+         Text {
+             anchors.fill: password
+             verticalAlignment: Text.AlignVCenter
+             text: root.busy ? "Signing in…" : "Enter your password"
+-            visible: password.length === 0
++            visible: password.length === 0 && runeMask.settledEmpty
+             font.family: sans.name; font.pixelSize: 17 * root.u
+             color: root.ivory
+         }

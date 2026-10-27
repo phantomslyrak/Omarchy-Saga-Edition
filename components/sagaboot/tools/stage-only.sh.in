@@ -1,0 +1,15 @@
+#!/bin/bash
+# Generate files in this user release directory only. No install path exists here.
+set -euo pipefail
+[[ ${1:-} == --stage-only && $# == 1 ]] || { echo 'Usage: bash tools/stage-only.sh --stage-only' >&2; exit 2; }
+[[ $EUID != 0 ]] || { echo 'Run as the ordinary user, without sudo.' >&2; exit 1; }
+release_dir=$(dirname "$(dirname "$(realpath "$0")")")
+plugin_dir=@SAGA_HOME@/.config/omarchy/plugins/io.github.sirjul1337.lock-explorer/plymouth
+sha256sum -c --status "$release_dir/SOURCE-SHA256SUMS"
+bash "$plugin_dir/custom/generate.sh" "$release_dir/theme" "$release_dir/source/sagaboot-v1.conf" custom:sagaboot-v1
+/usr/bin/python3 -B "$release_dir/tools/finish-theme.py"
+cp "$release_dir/previews/SagaBoot-v1.0-preview-2048x1280.png" "$release_dir/theme/preview.png"
+source "$plugin_dir/root-theme.sh"
+seal_theme "$release_dir/theme" omarchy-boot
+build_addon "$release_dir/theme" "$release_dir/staged/SagaBoot-v1.0.addon.efi"
+printf 'Staged only: %s/staged/SagaBoot-v1.0.addon.efi\n' "$release_dir"

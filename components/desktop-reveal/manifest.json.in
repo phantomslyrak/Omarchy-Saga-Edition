@@ -1,0 +1,28 @@
+{
+  "upstream_commit": "efb50993780079460b0cbed1363e2166a2de1d9f",
+  "prototype_commit": "6c112643b20d88e02057309d63e1fdfb3649de5e",
+  "patch_sha256": "6c55cef9d00d548462325ae8ce8b1d334821a50b7dd353131f78a66adad58f09",
+  "patch_apply_and_reverse": "passed",
+  "full_linked_binary": true,
+  "deployed": false,
+  "real_lock_or_suspend_run": false,
+  "source_baseline_commit": "7e7a4ab311609403d97d80e2268df0c89e92339c",
+  "baseline_trailing_newline_corrected": true,
+  "binary_path": "@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/bin/Hyprland-saga-reveal",
+  "binary_sha256": "510e4b66535e4c3a41d5b269b005e2a267dbd969cac5279841aae11c285ff0c8",
+  "binary_bytes": 110262984,
+  "upstream_unit_tests": 270,
+  "upstream_unit_failures": 0,
+  "installed_protocol_headers_matching": 64,
+  "live_configuration_files_unchanged": 405,
+  "effect_enabled": false,
+  "config_validation": "passed, isolated --verify-config",
+  "dynamic_linking": "passed: ldd -r, no missing libraries/undefined symbols",
+  "system_packages_installed": [],
+  "local_build_dependencies": {
+    "hyprwayland-scanner": "0.4.6",
+    "glaze": "7.2.0",
+    "udis86": "5336633af70f3917760a6d441ff02d93477b0c86",
+    "hyprland-protocols": "0.7.0 + input-capture XML from 76f3fa7bced84268f4a39c43c633b77ae68b727f"
+  }
+}

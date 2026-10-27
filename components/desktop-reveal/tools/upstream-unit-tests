@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Run upstream GTest units using the built static library, without coverage rebuild or a display."""
+import concurrent.futures
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+
+root = Path(__file__).resolve().parent.parent
+build = root / 'build'
+source = root / 'full-source'
+output = root / 'results/upstream-units'
+output.mkdir(exist_ok=True)
+entries = json.loads((build / 'compile_commands.json').read_text())
+entry = next(x for x in entries if x['file'] == str(source / 'src/main.cpp'))
+arguments = shlex.split(entry['command'])
+flags = []
+i = 1
+while i < len(arguments):
+    arg = arguments[i]
+    if arg in ('-o', '-c', '-include', '-MF', '-MT', '-MQ'):
+        i += 2
+        continue
+    if arg.startswith(('-O', '-g', '-fmodule-mapper=', '-fdeps-format=')) or arg in ('-DNDEBUG', '-MD', '-MMD', '-MP', '-Winvalid-pch', '-fmodules-ts'):
+        i += 1
+        continue
+    flags.append(arg)
+    i += 1
+flags += ['-O0', '-g0', '-I' + str(source / 'include'), '-I' + str(root / 'vendor/glaze/include')]
+
+def compile_test(path):
+    obj = output / (str(path.relative_to(source / 'tests')).replace('/', '_') + '.o')
+    run = subprocess.run([arguments[0], *flags, '-c', str(path), '-o', str(obj)], cwd=entry['directory'], capture_output=True, text=True)
+    (output / (obj.name + '.log')).write_text(run.stdout + run.stderr)
+    if run.returncode:
+        raise RuntimeError('unit compile failed: ' + str(path))
+    return obj
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+    objects = list(pool.map(compile_test, sorted((source / 'tests').rglob('*.cpp'))))
+
+# Reuse exactly the production dependency link line. Replace only the entry
+# object/output and add GTest's main; do not instrument or modify Hyprland.
+commands = subprocess.check_output(['ninja', '-C', str(build), '-t', 'commands', 'Hyprland'], text=True).splitlines()
+link = shlex.split(next(line for line in reversed(commands) if ' -o Hyprland ' in line))
+if link[:2] == [':', '&&']:
+    link = link[2:]
+if link[-2:] == ['&&', ':']:
+    link = link[:-2]
+index = next(i for i, arg in enumerate(link) if arg.endswith('src/main.cpp.o'))
+link[index:index + 1] = [str(p) for p in objects]
+link[link.index('-o') + 1] = str(output / 'hyprland-unit-tests')
+link += ['-lgtest_main', '-lgtest']
+run = subprocess.run(link, cwd=build, capture_output=True, text=True)
+(output / 'link.log').write_text(run.stdout + run.stderr)
+run.check_returncode()
+env = os.environ.copy()
+for key in ('WAYLAND_DISPLAY', 'HYPRLAND_INSTANCE_SIGNATURE', 'DISPLAY'):
+    env.pop(key, None)
+run = subprocess.run([str(output / 'hyprland-unit-tests'), '--gtest_output=json:' + str(output / 'tests.json')],
+                     cwd=output, env=env, capture_output=True, text=True, timeout=120)
+(output / 'tests.log').write_text(run.stdout + run.stderr)
+print(run.stdout[-3500:])
+run.check_returncode()

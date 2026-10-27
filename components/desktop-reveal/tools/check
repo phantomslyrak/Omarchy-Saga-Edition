@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Compile prototype translation units and run isolated tests; never touch live IPC."""
+from pathlib import Path
+import hashlib
+import json
+import shlex
+import shutil
+import subprocess
+
+root = Path(__file__).resolve().parent.parent
+results = root / 'results'
+results.mkdir(exist_ok=True)
+tree = root / 'compile-tree'
+shutil.copytree('/usr/include/hyprland', tree, dirs_exist_ok=True)
+for source in (root / 'source/src').rglob('*'):
+    if source.is_file():
+        shutil.copy2(source, tree / source.relative_to(root / 'source'))
+packages = 'hyprland aquamarine hyprutils hyprgraphics hyprlang hyprcursor wayland-server pixman-1 libdrm cairo pangocairo libinput xkbcommon libdisplay-info libeis-1.0'.split()
+flags = shlex.split(subprocess.check_output(['pkg-config', '--cflags', *packages], text=True))
+status = {}
+for name in ('src/render/Renderer.cpp', 'src/managers/SessionLockManager.cpp'):
+    command = ['g++', '-std=c++26', '-O0', '-g0', '-Wno-deprecated-declarations', '-Wno-narrowing',
+               '-I', str(tree), '-I', str(tree / 'src'), *flags,
+               '-c', str(tree / name), '-o', str(results / (Path(name).stem + '.o'))]
+    run = subprocess.run(command, capture_output=True, text=True)
+    (results / (Path(name).stem + '.log')).write_text(shlex.join(command) + '\n' + run.stdout + run.stderr)
+    status[name] = run.returncode
+    print(name, 'PASS (object compiled)' if run.returncode == 0 else 'FAIL; see results log', flush=True)
+run = subprocess.run(['g++', '-std=c++23', '-Wall', '-Wextra', '-Werror', str(root / 'tests/policy.cpp'), '-o', str(results / 'policy-tests')], capture_output=True, text=True)
+status['policy_build'] = run.returncode
+(results / 'policy-build.log').write_text(run.stdout + run.stderr)
+if run.returncode == 0:
+    run = subprocess.run([str(results / 'policy-tests')], capture_output=True, text=True, timeout=10)
+    status['policy_tests'] = run.returncode
+    (results / 'policy-tests.log').write_text(run.stdout + run.stderr)
+    print(run.stdout, end='', flush=True)
+lock_test = Path.home() / '.config/omarchy/plugins/io.github.sirjul1337.lock-explorer/tests/lock-state.test.cjs'
+run = subprocess.run(['node', '--test', '--test-isolation=none', '--test-reporter=tap', str(lock_test)], capture_output=True, text=True)
+status['existing_lock_tests'] = run.returncode
+(results / 'lock-state.tap').write_text(run.stdout + run.stderr)
+baseline = json.loads((root / 'baseline-sha256.json').read_text())
+changed = [p for p, h in baseline.items() if not Path(p).is_file() or hashlib.sha256(Path(p).read_bytes()).hexdigest() != h]
+status['live_files_unchanged'] = 0 if not changed else 1
+status['live_changes'] = changed
+(results / 'verification.json').write_text(json.dumps(status, indent=2) + '\n')
+print('Live configuration and stock binary:', 'unchanged' if not changed else changed)
+raise SystemExit(1 if any(v for k, v in status.items() if k != 'live_changes') else 0)

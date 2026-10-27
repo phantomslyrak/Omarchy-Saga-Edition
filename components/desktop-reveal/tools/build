@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""Build an alternate compositor locally. Never install or restart Hyprland."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+COMMIT = 'efb50993780079460b0cbed1363e2166a2de1d9f'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--from-repository', type=Path)
+parser.add_argument('--jobs', type=int, default=2)
+args = parser.parse_args()
+missing = [n for n in ('git', 'cmake', 'ninja', 'g++', 'pkg-config') if not shutil.which(n)]
+if missing:
+    parser.exit(2, 'Missing tools: ' + ', '.join(missing) + '\n')
+if args.jobs < 1:
+    parser.error('--jobs must be positive')
+results = ROOT / 'results'
+results.mkdir(exist_ok=True)
+
+def run(command, name, env=None):
+    print('Running', name, flush=True)
+    with (results / (name + '.log')).open('w') as out:
+        subprocess.run(command, env=env, stdout=out, stderr=subprocess.STDOUT, check=True)
+
+snapshot = ROOT / 'full-source'
+is_snapshot = snapshot.is_dir() and not args.from_repository
+if is_snapshot:
+    verification = json.loads((ROOT / 'source-verification.json').read_text())
+    if verification['commit'] != COMMIT or verification['mismatches']:
+        parser.error('unverified source snapshot')
+    target = snapshot
+else:
+    target = ROOT / 'build-source'
+    if not target.exists():
+        origin = str(args.from_repository.resolve()) if args.from_repository else 'https://github.com/hyprwm/Hyprland.git'
+        run(['git', 'clone', '--no-checkout', '--no-hardlinks', origin, str(target)], 'clone')
+        run(['git', '-C', str(target), 'checkout', '--detach', COMMIT], 'checkout')
+        run(['git', '-C', str(target), 'submodule', 'update', '--init', '--recursive'], 'submodules')
+    elif subprocess.check_output(['git', '-C', str(target), 'rev-parse', 'HEAD'], text=True).strip() != COMMIT:
+        parser.error('build-source has the wrong base commit')
+
+patch = ROOT / 'saga-desktop-reveal.patch'
+patch_hash = hashlib.sha256(patch.read_bytes()).hexdigest()
+marker = target / '.saga-patch-sha256'
+if marker.exists():
+    if marker.read_text().strip() != patch_hash:
+        parser.error('source carries a different Saga patch; preserve it before updating')
+else:
+    run(['git', '-C', str(target), 'apply', '--check', str(patch)], 'patch-check')
+    run(['git', '-C', str(target), 'apply', str(patch)], 'patch-apply')
+    marker.write_text(patch_hash + '\n')
+# Ensure the actual patched sources match the reviewed, committed patch set.
+for relative in ('src/managers/SessionLockManager.cpp', 'src/render/Renderer.cpp',
+                 'src/render/Renderer.hpp', 'src/render/SagaRevealPolicy.hpp'):
+    if (target / relative).read_bytes() != (ROOT / 'source' / relative).read_bytes():
+        parser.error('patched source mismatch: ' + relative)
+
+# Preserve the installed -4 protocol API: its input-capture header includes
+# the upstream destroy request added after the pinned submodule tag.
+compat = ROOT / 'compatibility/hyprland-input-capture-v1.xml'
+if compat.is_file():
+    relative = 'subprojects/hyprland-protocols/protocols/hyprland-input-capture-v1.xml'
+    candidate = target / relative
+    if candidate.read_bytes() != compat.read_bytes():
+        run(['git', '-C', str(target), 'apply', '--check', str(ROOT / 'compatibility/hyprland-protocols.patch')], 'protocol-compat-check')
+        run(['git', '-C', str(target), 'apply', str(ROOT / 'compatibility/hyprland-protocols.patch')], 'protocol-compat-apply')
+
+env = os.environ.copy()
+local = ROOT / 'local-tools'
+scanner_source = ROOT / 'vendor/hyprwayland-scanner'
+if scanner_source.is_dir():
+    scanner = local / 'bin/hyprwayland-scanner'
+    if not scanner.is_file():
+        run(['cmake', '-S', str(scanner_source), '-B', str(ROOT / 'vendor-build/scanner'), '-G', 'Ninja',
+             '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_INSTALL_PREFIX=' + str(local)], 'scanner-configure')
+        run(['cmake', '--build', str(ROOT / 'vendor-build/scanner'), '--parallel', str(args.jobs)], 'scanner-build')
+        # This installs only the build tool, exclusively under this work directory.
+        run(['cmake', '--install', str(ROOT / 'vendor-build/scanner')], 'scanner-local-install')
+    env['PATH'] = str(local / 'bin') + os.pathsep + env.get('PATH', '')
+    env['CMAKE_PREFIX_PATH'] = str(local) + os.pathsep + env.get('CMAKE_PREFIX_PATH', '')
+
+# Upstream protocol generation has no XML DEPENDS edge. Explicitly refresh
+# the adjusted protocol before compiling instead of trusting a stale output.
+if compat.is_file():
+    with tempfile.TemporaryDirectory(prefix='protocol-check-', dir=ROOT) as generated:
+        run([str(local / 'bin/hyprwayland-scanner'), str(compat), generated + '/'], 'protocol-compat-generate', env)
+        installed = Path('/usr/include/hyprland/protocols/hyprland-input-capture-v1.hpp')
+        header = Path(generated) / 'hyprland-input-capture-v1.hpp'
+        if header.read_bytes() != installed.read_bytes():
+            parser.error('adjusted input-capture header does not match the installed package')
+        for path in Path(generated).iterdir():
+            destination = target / 'protocols' / path.name
+            if not destination.exists() or destination.read_bytes() != path.read_bytes():
+                shutil.copy2(path, destination)
+
+configure = ['cmake', '-S', str(target), '-B', str(ROOT / 'build'), '-G', 'Ninja',
+             '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DCMAKE_CXX_FLAGS_RELWITHDEBINFO=-O2 -g1 -DNDEBUG',
+             '-DBUILD_TESTING=OFF', '-DUSE_TRACY=OFF', '-DCMAKE_INSTALL_PREFIX=' + str(ROOT / 'local-install'),
+             '-DCMAKE_INSTALL_DATAROOTDIR=/usr/share']
+if is_snapshot:
+    # The snapshot is SHA-verified, not a synthetic Git checkout. Preserve the
+    # installed commit metadata explicitly instead of pretending it has history.
+    for key, value in re.findall(r'^#define (GIT_\w+)\s+(".*")$', Path('/usr/include/hyprland/src/version.h').read_text(), re.M):
+        env[key] = json.loads(value)
+    env['GIT_DIRTY'] = 'dirty'
+    configure.append('-DCMAKE_DISABLE_FIND_PACKAGE_Git=TRUE')
+if (ROOT / 'vendor/glaze/CMakeLists.txt').is_file():
+    configure += ['-DFETCHCONTENT_SOURCE_DIR_GLAZE=' + str(ROOT / 'vendor/glaze'), '-DFETCHCONTENT_FULLY_DISCONNECTED=ON']
+run(configure, 'configure', env)
+run(['cmake', '--build', str(ROOT / 'build'), '--target', 'Hyprland', '--parallel', str(args.jobs)], 'full-build', env)
+binary = ROOT / 'build/Hyprland'
+if not binary.is_file() or b'Saga reveal armed:' not in binary.read_bytes():
+    parser.exit(1, 'Expected patched binary not found. No installation performed.\n')
+destination = ROOT / 'bin/Hyprland-saga-reveal'
+destination.parent.mkdir(exist_ok=True)
+shutil.copy2(binary, destination)
+print('Built alternate compositor:', destination)
+print('Not installed or launched. Runtime/visual tests remain outstanding.')

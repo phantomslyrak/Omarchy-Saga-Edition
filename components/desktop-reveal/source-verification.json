@@ -1,0 +1,15 @@
+{
+  "verified_blobs": 1027,
+  "mismatches": [],
+  "missing_non_build_assets": [
+    "assets/prev1.png"
+  ],
+  "commit": "efb50993780079460b0cbed1363e2166a2de1d9f",
+  "profiling_tracy_submodule": "not used: USE_TRACY disabled",
+  "local_copied_verified": 407,
+  "installed_source_header_differences_expected": [
+    "version.h (dirty marker)",
+    "render/Renderer.hpp (Saga additions)"
+  ],
+  "installed_protocol_headers_matching": 64
+}

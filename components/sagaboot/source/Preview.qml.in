@@ -1,0 +1,40 @@
+pragma ComponentBehavior: Bound
+import QtQuick
+import QtQuick.Window
+import Quickshell
+ShellRoot {
+    Window {
+        id: win
+        visible: true; width: 2560; height: 1600; color: "#0d171b"
+        property int phase: 0
+        property int count: 0
+        readonly property real textHeight: height * 0.035
+        readonly property real dotSize: Math.max(8, Math.floor(textHeight*0.39))
+        Image {id:art;anchors.fill:parent;source:"file://@SAGA_HOME@/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/theme/bg.png";fillMode:Image.PreserveAspectFit}
+        Image {
+            visible:win.count===0
+            x:win.width*(0.503-0.185/2);y:win.height*0.80134-height/2
+            height:win.textHeight*0.58;width:implicitWidth/implicitHeight*height
+            source:"file://@SAGA_HOME@/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/theme/placeholder.png"
+        }
+        Repeater {
+            model:win.count
+            Image {
+                required property int index
+                source:"file://@SAGA_HOME@/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/theme/dot.png"
+                x:win.width*(0.503-0.185/2)+index*(win.dotSize+Math.floor(win.textHeight*0.15))
+                y:win.height*0.80134-height/2;width:win.dotSize;height:width
+            }
+        }
+        Timer {
+            interval:500;running:true;repeat:true
+            onTriggered: {
+                if(art.status!==Image.Ready)return
+                const dir="@SAGA_HOME@/.local/share/omarchy-saga-edition/releases/SagaBoot-v1.0/previews/"
+                if(win.phase===0){win.phase=1;win.contentItem.grabToImage(function(r){r.saveToFile(dir+"SagaBoot-v1.0-empty-2560x1600.png");win.count=6})}
+                else if(win.phase===1){win.phase=2;win.contentItem.grabToImage(function(r){r.saveToFile(dir+"SagaBoot-v1.0-input-2560x1600.png");win.width=2048;win.height=1280;win.count=0})}
+                else if(win.phase===2){win.phase=3;win.contentItem.grabToImage(function(r){r.saveToFile(dir+"SagaBoot-v1.0-preview-2048x1280.png");console.log("SAGABOOT_PREVIEW_READY");Qt.quit()})}
+            }
+        }
+    }
+}

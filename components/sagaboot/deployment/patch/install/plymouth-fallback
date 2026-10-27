@@ -1,0 +1,27 @@
+#!/bin/bash
+# Build-only hook: add after plymouth. No host fontconfig/theme changes.
+build() {
+    local cfg="${BASH_SOURCE[0]%/*}/../plymouth-fallback-fonts.conf"
+    local fontdir='/usr/share/fonts/liberation' font
+    [[ -r "$cfg" ]] || { error 'Missing plymouth-fallback-fonts.conf'; return 1; }
+    # Refuse to silently replace another hook's fontconfig policy.
+    if [[ -e "$BUILDROOT/etc/fonts/fonts.conf" ]] && ! cmp -s "$cfg" "$BUILDROOT/etc/fonts/fonts.conf"; then
+        error 'Another hook already supplied fonts.conf; review and merge explicitly'
+        return 1
+    fi
+    for font in LiberationMono-Regular.ttf LiberationMono-Bold.ttf; do
+        [[ -r "$fontdir/$font" ]] || { error "Missing recovery font: $font"; return 1; }
+    done
+    add_binary /usr/bin/fc-match || return 1
+    add_file "$cfg" /etc/fonts/fonts.conf 644 || return 1
+    for font in LiberationMono-Regular.ttf LiberationMono-Bold.ttf; do
+        add_file "$fontdir/$font" "/usr/share/fonts/plymouth-fallback/$font" 644 || return 1
+    done
+}
+help() {
+    cat <<EOF
+Build-only dependencies for Plymouth label-freetype text/details recovery.
+Place after plymouth; no runtime hook, no theme override, no font cache copied.
+Requires fc-match and Liberation Mono Regular/Bold already installed.
+EOF
+}

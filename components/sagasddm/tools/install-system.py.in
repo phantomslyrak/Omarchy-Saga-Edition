@@ -1,0 +1,95 @@
+import configparser, datetime, hashlib, json, os, pathlib, shutil, stat, subprocess, sys, tarfile, tempfile
+P=pathlib.Path
+base=P(sys.argv[1]).resolve()
+assert os.geteuid()==0
+session=P('/usr/share/wayland-sessions/omarchy-saga.desktop')
+launcher=P('/usr/local/libexec/saga-session-launcher')
+helper=P('/usr/local/sbin/saga-sddm-rollback')
+override=P('/etc/sddm.conf.d/zzzzz-saga-sddm-theme.conf')
+theme=P('/usr/share/sddm/themes/saga-sddm')
+state=P('/var/lib/saga-sddm')
+active=state/'active-backup'
+private='@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent-session-staging/saga-session-launcher'
+files=['Main.qml','NorthernFrame.qml','metadata.desktop','theme.conf','assets/fjord-clean-no-logo-v1.png','assets/NotoSerif-Regular.ttf','assets/NotoSans-Regular.ttf']
+configfiles=[]
+for d in ('/usr/lib/sddm/sddm.conf.d','/etc/sddm.conf.d'):configfiles.extend(sorted(P(d).glob('*.conf')))
+if P('/etc/sddm.conf').exists():configfiles.append(P('/etc/sddm.conf'))
+def config():
+    c=configparser.ConfigParser(strict=False,interpolation=None);c.read(configfiles);return c
+old=config()
+assert old.get('Theme','Current')=='omarchy','Current theme changed; review required'
+assert old.get('Autologin','Session')=='omarchy-saga.desktop','Unexpected autologin session'
+main=configparser.ConfigParser(strict=False,interpolation=None);main.read('/etc/sddm.conf')
+assert not main.has_option('Theme','Current'),'/etc/sddm.conf shadows theme snippets'
+for p in (theme,launcher,helper,override,active):
+    assert not p.exists() and not p.is_symlink(),'Refusing to overwrite '+str(p)
+# Validate every existing destination ancestor before creating system files.
+for p in (theme,launcher,helper,override,active,session):
+    for q in (p,*p.parents):
+        if q.exists() or q.is_symlink():
+            st=q.lstat()
+            assert not q.is_symlink(),'Symlink in destination path: '+str(q)
+            assert st.st_uid==0 and not st.st_mode & 0o022,'Unsafe destination owner/mode: '+str(q)
+for name in files:
+    p=base/'saga-sddm'/name
+    assert p.is_file() and not p.is_symlink() and p.stat().st_size
+q=(base/'saga-sddm/Main.qml').read_text()
+assert '/home/' not in q and 'http' not in q and 'Quickshell' not in q
+original=session.read_bytes(); ss=session.stat()
+oldexec=('Exec='+private).encode();oldtry=('TryExec='+private).encode()
+assert original.splitlines().count(oldexec)==1 and original.splitlines().count(oldtry)==1,'Unexpected existing session entry'
+updated=original.replace(oldexec,b'Exec=/usr/local/libexec/saga-session-launcher').replace(oldtry,b'TryExec=/usr/local/libexec/saga-session-launcher')
+expected=json.loads((base/'preview/protected-sha256.json').read_text())
+for path,digest in expected.items():
+    assert hashlib.sha256(P(path).read_bytes()).hexdigest()==digest,'Protected file changed since review: '+path
+backup=state/'backups'/datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
+backup.mkdir(parents=True,mode=0o700)
+os.chmod(state,0o700);os.chmod(state/'backups',0o700)
+with tarfile.open(backup/'sddm-config.tar','w') as t:
+    for f in configfiles:t.add(f,arcname=str(f).lstrip('/'))
+(backup/'omarchy-saga.desktop').write_bytes(original)
+(backup/'previous-theme.txt').write_text('omarchy\n')
+m={'previous_theme':'omarchy','autologin_session':'omarchy-saga.desktop','original_session_sha256':hashlib.sha256(original).hexdigest(),'original_session_mode':stat.S_IMODE(ss.st_mode),'original_session_uid':ss.st_uid,'original_session_gid':ss.st_gid,'installed':{}}
+created=[];session_changed=False
+
+def put(p,data,mode):
+    p.parent.mkdir(parents=True,exist_ok=True,mode=0o755)
+    fd,tmp=tempfile.mkstemp(prefix='.saga-install-',dir=p.parent)
+    try:
+        with os.fdopen(fd,'wb') as f:f.write(data)
+        os.chmod(tmp,mode);os.replace(tmp,p)
+    finally:
+        if os.path.exists(tmp):os.unlink(tmp)
+    m['installed'][str(p)]=hashlib.sha256(data).hexdigest()
+    created.append(p)
+try:
+    for name in files:put(theme/name,(base/'saga-sddm'/name).read_bytes(),0o644)
+    put(launcher,(base/'tools/saga-session-launcher').read_bytes(),0o755)
+    put(helper,(base/'rollback.sh').read_bytes(),0o755)
+    put(session,updated,ss.st_mode & 0o777);session_changed=True
+    subprocess.run(['runuser','-u','sddm','--','test','-x',str(launcher)],check=True)
+    for name in files:subprocess.run(['runuser','-u','sddm','--','test','-r',str(theme/name)],check=True)
+    put(active,(str(backup)+'\n').encode(),0o600)
+    put(override,b'[Theme]\nCurrent=saga-sddm\n',0o644)
+    configfiles.append(override)
+    c=config()
+    assert c.get('Theme','Current')=='saga-sddm'
+    assert c.get('Autologin','Session')=='omarchy-saga.desktop'
+    for path,digest in expected.items():
+        if P(path)!=session:assert hashlib.sha256(P(path).read_bytes()).hexdigest()==digest,path
+    for path in m['installed']:
+        p=P(path);s=p.stat()
+        assert s.st_uid==0 and s.st_gid==0 and not s.st_mode & 0o022,path
+    (backup/'manifest.json').write_text(json.dumps(m,indent=2)+'\n')
+    subprocess.run([str(helper),'--check'],check=True)
+except BaseException:
+    if session_changed:
+        session.write_bytes(original);os.chmod(session,stat.S_IMODE(ss.st_mode));os.chown(session,ss.st_uid,ss.st_gid)
+    for p in reversed(created):
+        if p!=session and p.exists():p.unlink()
+    for p in (theme/'assets',theme):
+        if p.exists() and not any(p.iterdir()):p.rmdir()
+    raise
+print('Installed SagaSDDM v1.0; Theme.Current=saga-sddm; Autologin.Session=omarchy-saga.desktop.')
+print('No ACL changes. No service restart. Backup: '+str(backup))
+print('Rollback: sudo /usr/local/sbin/saga-sddm-rollback')

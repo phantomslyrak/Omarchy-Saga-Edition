@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+# PREPARED ONLY. Run explicitly after review/approval; never restarts SDDM.
+set -euo pipefail
+root=@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype/permanent
+[[ $EUID == 0 ]] || { echo 'Run using sudo after explicit approval.' >&2; exit 1; }
+for target in /usr/local/share/wayland-sessions/omarchy-saga.desktop /etc/sddm.conf.d/zz-saga-session.conf /usr/local/share/sddm/themes/omarchy-saga; do
+  [[ ! -e $target && ! -L $target ]] || { echo "Already exists; refusing overwrite: $target" >&2; exit 1; }
+done
+# Verify the reviewed baseline still describes the machine being installed.
+for file in 10-theme.conf 10-wayland.conf 99-omarchy-login.conf autologin.conf; do
+  cmp -- "$root/backups/etc/sddm.conf.d/$file" "/etc/sddm.conf.d/$file"
+done
+[[ ! -e /etc/sddm.conf ]] || { echo 'New /etc/sddm.conf needs review first.' >&2; exit 1; }
+/usr/bin/desktop-file-validate "$root/staged/omarchy-saga.desktop"
+backup="/var/backups/omarchy-saga-session/$(date +%Y%m%d-%H%M%S)"
+install -d -m 0700 "$backup"
+cp -a -- /etc/sddm.conf.d "$backup/"
+cp -a -- /usr/local/share/wayland-sessions/omarchy.desktop "$backup/"
+install -d -m 0755 /usr/local/share/sddm/themes/omarchy-saga
+for asset in "$root"/staged/omarchy-saga/*; do
+  install -m 0644 -- "$asset" /usr/local/share/sddm/themes/omarchy-saga/
+done
+install -m 0644 -- "$root/staged/omarchy-saga.desktop" /usr/local/share/wayland-sessions/omarchy-saga.desktop
+# Activate last, through a new override. Original files are untouched.
+install -m 0644 -- "$root/staged/zz-saga-session.conf" /etc/sddm.conf.d/zz-saga-session.conf
+echo "Installed. Backup: $backup. No logout/restart performed."

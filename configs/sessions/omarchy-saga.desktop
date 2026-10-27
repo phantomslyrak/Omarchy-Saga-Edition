@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Omarchy Saga Edition
+Comment=Omarchy with Saga Desktop Reveal (700 ms)
+Exec=/usr/local/libexec/saga-session-launcher
+TryExec=/usr/local/libexec/saga-session-launcher
+DesktopNames=Hyprland

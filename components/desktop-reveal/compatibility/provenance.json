@@ -1,0 +1,9 @@
+{
+  "reason": "installed protocol header has setDestroy absent from pinned submodule 0.7.0",
+  "upstream_compat_commit": "76f3fa7bced84268f4a39c43c633b77ae68b727f",
+  "xml_git_blob": "83599b64274c305c2255ca304d55c46431dc5197",
+  "scanner_version": "0.4.6",
+  "verification": "PASS: all 64 generated protocol headers byte-for-byte equal to installed headers",
+  "packaging_recipe": "official Arch GitLab unavailable; all other installed source/protocol headers compared directly",
+  "system_packages_changed": false
+}

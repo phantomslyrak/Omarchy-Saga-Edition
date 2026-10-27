@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Explicit, guarded UWSM test launch and recovery. No persistent session entry."""
+import argparse
+import os
+from pathlib import Path
+import shlex
+import signal
+import subprocess
+
+root = Path(__file__).resolve().parent.parent
+binary = root / 'bin/Hyprland-saga-reveal'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('action', choices=['launch', 'status', 'recover'])
+parser.add_argument('--dry-run', action='store_true')
+parser.add_argument('--terminate', action='store_true', help='recover: stop the verified test watchdog/session, after disabling reveal')
+args = parser.parse_args()
+
+def compositors():
+    result = []
+    for process in Path('/proc').iterdir():
+        if not process.name.isdigit():
+            continue
+        try:
+            if process.stat().st_uid != os.getuid():
+                continue
+            exe = Path(os.readlink(process / 'exe').removesuffix(' (deleted)'))
+            if exe.name in ('Hyprland', 'Hyprland-saga-reveal'):
+                result.append((int(process.name), exe))
+        except (FileNotFoundError, PermissionError, ProcessLookupError):
+            continue
+    return result
+
+launcher = Path('/usr/bin/start-hyprland')
+launcher_args = [str(launcher), '--path', str(binary)]
+command = ['uwsm', 'start', '-U', 'run', '-F', '-D', 'Hyprland', '--', *launcher_args]
+
+def is_test_watchdog(process):
+    """Match our exact launcher invocation, including while its child restarts."""
+    return (process.stat().st_uid == os.getuid()
+            and Path(os.readlink(process / 'exe')) == launcher
+            and (process / 'cmdline').read_bytes().split(b'\0') ==
+            [os.fsencode(arg) for arg in launcher_args] + [b''])
+
+def terminate_test_session():
+    # Stop the supervisor first: killing just its child can trigger a restart.
+    for process in Path('/proc').iterdir():
+        if not process.name.isdigit():
+            continue
+        fd = None
+        try:
+            fd = os.pidfd_open(int(process.name))
+            if is_test_watchdog(process):
+                signal.pidfd_send_signal(fd, signal.SIGTERM)
+                print('Sent SIGTERM to test watchdog:', process.name)
+        except (FileNotFoundError, PermissionError, ProcessLookupError):
+            continue
+        finally:
+            if fd is not None:
+                os.close(fd)
+    # Also support recovery of older sessions launched without the watchdog.
+    for pid, exe in compositors():
+        if exe != binary:
+            continue
+        fd = None
+        try:
+            fd = os.pidfd_open(pid)
+            process = Path('/proc') / str(pid)
+            parent = Path('/proc') / (process / 'stat').read_text().rsplit(')', 1)[1].split()[1]
+            if (process.stat().st_uid == os.getuid()
+                    and Path(os.readlink(process / 'exe')) == binary):
+                # Leave supervised children to their launcher shutdown handler.
+                if Path(os.readlink(parent / 'exe')) == launcher:
+                    continue
+                signal.pidfd_send_signal(fd, signal.SIGTERM)
+                print('Sent SIGTERM to legacy test compositor:', pid)
+        except (FileNotFoundError, PermissionError, ProcessLookupError):
+            continue
+        finally:
+            if fd is not None:
+                os.close(fd)
+if args.action == 'status':
+    print('Test binary:', binary, 'exists=' + str(binary.is_file()))
+    print('Launch command:', shlex.join(command))
+    for pid, exe in compositors():
+        print('Visible compositor:', pid, exe)
+    print('No compositor is started or stopped by status.')
+elif args.action == 'launch':
+    if not binary.is_file() or not os.access(binary, os.X_OK):
+        parser.error('the linked test binary is not ready')
+    if not launcher.is_file() or not os.access(launcher, os.X_OK):
+        parser.error('the system start-hyprland launcher is not available')
+    if args.dry_run:
+        print(shlex.join(command))
+    else:
+        if not os.isatty(0) or os.environ.get('WAYLAND_DISPLAY') or os.environ.get('HYPRLAND_INSTANCE_SIGNATURE') or compositors():
+            parser.error('launch only from a logged-in TTY after leaving the existing graphical session')
+        env = os.environ.copy()
+        env['OMARCHY_PATH'] = '/usr/share/omarchy'
+        raise SystemExit(subprocess.call(command, env=env))
+else:
+    if args.dry_run:
+        print('Disable reveal; with --terminate SIGTERM the same-user start-hyprland with exact --path to this test binary (or legacy unsupervised test binary).')
+    else:
+        subprocess.run([str(root / 'tools/control'), 'disable'], check=True)
+        if args.terminate:
+            terminate_test_session()
+        print('For stock Hyprland, use the normal login entry after this test session exits.')

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+P=@SAGA_HOME@/.local/share/omarchy-saga-edition/work/desktop-reveal-prototype
+MARKER=@SAGA_HOME@/.config/omarchy-saga-edition
+mkdir -p -m 700 "$MARKER"
+case "${1:-}" in
+  off)
+    : > "$MARKER/disable-reveal"; chmod 600 "$MARKER/disable-reveal"
+    "$P/tools/control" disable
+    echo 'Reveal disabled persistently (the custom session can still start).'
+    ;;
+  on)
+    rm -f -- "$MARKER/disable-reveal"
+    "$P/tools/control" enable --ms 700
+    echo 'Reveal enabled for this session and next logins.'
+    ;;
+  stock)
+    : > "$MARKER/force-stock"; chmod 600 "$MARKER/force-stock"
+    "$P/tools/control" disable || true
+    echo 'Future Saga logins fall back to original Hyprland; currently running compositor unchanged.'
+    ;;
+  saga)
+    rm -f -- "$MARKER/force-stock" "$MARKER/session-failed"
+    echo 'Saga launch re-enabled for NEXT login; verify binary/dependency guard.'
+    ;;
+  status)
+    for name in force-stock session-failed disable-reveal; do
+      [[ -e "$MARKER/$name" ]] && echo "$name: active" || echo "$name: absent"
+    done
+    "$P/tools/control" status 2>/dev/null || true
+    ;;
+  *) echo 'Usage: saga-reveal-toggle {off|on|stock|saga|status}' >&2; exit 2;;
+esac
